@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://xml.netbeans.org/schema/MindMapperSchema"
+            xmlns:tns="http://xml.netbeans.org/schema/MindMapperSchema"
+            elementFormDefault="qualified">
+    <xsd:element name="Document">
+        <xsd:complexType>
+            <xsd:sequence minOccurs="1">
+                <xsd:element name="Root" type="tns:Node"/>
+                <xsd:element name="Links" type="tns:Links"></xsd:element>
+            </xsd:sequence>
+            <xsd:attribute name="name" type="xsd:string" use="required"/>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:complexType name="Node">
+        <xsd:sequence maxOccurs="unbounded">
+            <xsd:element name="Child" type="tns:Node" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+        <xsd:attribute name="name" type="xsd:string"/>
+        <xsd:attribute name="id" type="xsd:ID"/>
+    </xsd:complexType>
+    <xsd:complexType name="Link">
+        <xsd:attribute name="name" type="xsd:string"/>
+        <xsd:attribute name="source" type="xsd:IDREF"/>
+        <xsd:attribute name="target" type="xsd:IDREF"/>
+    </xsd:complexType>
+    <xsd:complexType name="Links">
+        <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+            <xsd:element name="Link" type="tns:Link" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+</xsd:schema>

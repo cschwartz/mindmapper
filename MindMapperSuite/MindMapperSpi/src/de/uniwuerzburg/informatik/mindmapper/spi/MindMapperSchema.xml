@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : MindMapperSchema.xml
+    Created on : 10. Oktober 2008, 14:26
+    Author     : blair
+    Description:
+        Purpose of the document follows.
+-->
+
+<ns0:Document  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+   xmlns:ns0='http://xml.netbeans.org/schema/MindMapperSchema'
+   xsi:schemaLocation='http://xml.netbeans.org/schema/MindMapperSchema MindMapperSchema.xsd'>
+        <ns0:Root name="Foo" id="id-1">
+            <ns0:Child name="Bar" id="id-2"/>
+            <ns0:Child name="Baz" id="id-3"/>
+        </ns0:Root>
+        <ns0:Links>
+            <ns0:Link  name="Bar<->Baz" source="id-2" target="id-3"/>
+        </ns0:Links>
+</ns0:Document>

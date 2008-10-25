@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Templates">
+        <folder name="Project">
+            <folder name="Standard">
+                <file name="EmptyMindMapTemplateProject.zip" url="EmptyMindMapTemplateProject.zip">
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="de.uniwuerzburg.informatik.mindmapper.samples.Bundle"/>
+                    <attr name="instantiatingIterator" methodvalue="de.uniwuerzburg.informatik.mindmapper.samples.empty.EmptyMindMapTemplateWizardIterator.createIterator"/>
+                    <attr name="instantiatingWizardURL" urlvalue="nbresloc:/de/uniwuerzburg/informatik/mindmapper/samples/empty/EmptyMindMapTemplateDescription.html"/>
+                    <attr name="template" boolvalue="true"/>
+                </file>
+                <file name="SampleMindMapTemplateProject.zip" url="SampleMindMapTemplateProject.zip">
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="de.uniwuerzburg.informatik.mindmapper.samples.Bundle"/>
+                    <attr name="instantiatingIterator" methodvalue="de.uniwuerzburg.informatik.mindmapper.samples.sample.SampleMindMapTemplateWizardIterator.createIterator"/>
+                    <attr name="instantiatingWizardURL" urlvalue="nbresloc:/de/uniwuerzburg/informatik/mindmapper/samples/sample/SampleMindMapTemplateDescription.html"/>
+                    <attr name="template" boolvalue="true"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>

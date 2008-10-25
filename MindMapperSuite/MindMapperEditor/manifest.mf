@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: de.uniwuerzburg.informatik.mindmapper.editor
+OpenIDE-Module-Layer: de/uniwuerzburg/informatik/mindmapper/editor/layer.xml
+OpenIDE-Module-Localizing-Bundle: de/uniwuerzburg/informatik/mindmapper/editor/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
