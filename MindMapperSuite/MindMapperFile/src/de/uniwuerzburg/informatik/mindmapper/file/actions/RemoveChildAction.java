@@ -6,20 +6,21 @@
 package de.uniwuerzburg.informatik.mindmapper.file.actions;
 
 import de.uniwuerzburg.informatik.mindmapper.api.Node;
-import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
+import org.openide.loaders.DataObject;
 
 /**
  *
  * @author blair
  */
-public class RemoveChildAction extends AbstractUndoableEdit{
+public class RemoveChildAction extends AbstractUndoableAction{
 
     protected Node parent;
     protected Node childToRemove;
     
-    public RemoveChildAction(Node parent, Node childToRemove) {
+    public RemoveChildAction(DataObject dataObject, Node parent, Node childToRemove) {
+        super(dataObject);
         this.parent = parent;
         this.childToRemove = childToRemove;
         parent.removeChild(childToRemove);

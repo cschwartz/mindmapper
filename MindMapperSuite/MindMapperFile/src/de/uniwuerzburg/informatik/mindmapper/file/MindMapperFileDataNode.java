@@ -6,17 +6,15 @@ package de.uniwuerzburg.informatik.mindmapper.file;
 
 import de.uniwuerzburg.informatik.mindmapper.api.Document;
 import de.uniwuerzburg.informatik.mindmapper.editorapi.DocumentCookie;
-import de.uniwuerzburg.informatik.mindmapper.editorapi.ModifiedCookie;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataNode;
+import org.openide.loaders.DataObject;
 import org.openide.loaders.SaveAsCapable;
-import org.openide.nodes.Node.Cookie;
 import org.openide.nodes.PropertySupport;
 import org.openide.nodes.Sheet;
 import org.openide.util.Lookup;
@@ -26,36 +24,22 @@ public class MindMapperFileDataNode extends DataNode implements PropertyChangeLi
     public static final String PROPERTY_DOCUMENT_CHANGED = "mindmapperfiledatanode_documentchanged";
     protected Document document;
     
-    protected SaveCookie saveCookie = new SaveCookie() {
-
-        public void save() throws IOException {
-            getDataObject().setModified(false);
-        }
-    };
+    protected SaveCookie saveCookie;
     
     public MindMapperFileDataNode(MindMapperFileDataObject obj) {
         super(obj, new DocumentChildren(obj.lookup.lookup(Document.class)));
         this.document = obj.lookup.lookup(Document.class);
         this.document.addPropertyChangeListener(this);
 
-        getDataObject().setModified(true);
-        getCookieSet().add(addModifiedCookie());
+        saveCookie = obj.getLookup().lookup(SaveCookie.class);
+
         ((DocumentChildren)getChildren()).setDataNode(this);
 //        setIconBaseWithExtension(IMAGE_ICON_BASE);
     }
 
     MindMapperFileDataNode(MindMapperFileDataObject obj, Lookup lookup) {
-        super(obj, new DocumentChildren(obj.lookup.lookup(Document.class)));
-        this.document = obj.lookup.lookup(Document.class);
-        this.document.addPropertyChangeListener(this);
-
-        getCookieSet().add(saveCookie);
-        getDataObject().setModified(true);
-        
-        getCookieSet().add(addModifiedCookie());
+        this(obj);
         getCookieSet().add(lookup.lookup(DocumentCookie.class));
-        
-        ((DocumentChildren)getChildren()).setDataNode(this);
 
         //        setIconBaseWithExtension(IMAGE_ICON_BASE);
     }
@@ -115,58 +99,35 @@ public class MindMapperFileDataNode extends DataNode implements PropertyChangeLi
             setDisplayName(document.getName());
         }
 
-        if(evt.getPropertyName().equals(PROPERTY_DOCUMENT_CHANGED)) {
+//        if(evt.getPropertyName().equals(PROPERTY_DOCUMENT_CHANGED)) {
+//            if(evt.getNewValue().equals(Boolean.TRUE)) {
+//                getDataObject().setModified(true);
+//                getCookieSet().assign(SaveCookie.class, saveCookie);
+//                firePropertyChange(PROPERTY_DOCUMENT_CHANGED, null, true);
+//            } else {
+//                getDataObject().setModified(false);
+//                getCookieSet().assign(SaveCookie.class);
+//                firePropertyChange(PROPERTY_DOCUMENT_CHANGED, null, false);
+//            }
+//            fireCookieChange();
+//        }
+
+        if(evt.getPropertyName().equals(DataObject.PROP_MODIFIED)) {
             if(evt.getNewValue().equals(Boolean.TRUE)) {
                 getDataObject().setModified(true);
                 getCookieSet().assign(SaveCookie.class, saveCookie);
-//                getCookieSet().assign(SaveCookie.class, saveCookie);
-//                firePropertyChange(PROPERTY_DOCUMENT_CHANGED, null, true);
+                firePropertyChange(PROPERTY_DOCUMENT_CHANGED, null, true);
             } else {
                 getDataObject().setModified(false);
                 getCookieSet().assign(SaveCookie.class);
-//                firePropertyChange(PROPERTY_DOCUMENT_CHANGED, null, true);
-//                getCookieSet().assign(SaveCookie.class);
+                firePropertyChange(PROPERTY_DOCUMENT_CHANGED, null, false);
             }
             fireCookieChange();
         }
     }
 
-    private Cookie addModifiedCookie() {
-        return new ModifiedCookie() {
-
-            protected PropertyChangeSupport support = new PropertyChangeSupport(this);
-            protected boolean isModified = false;
-
-            public void addPropertyChangeListener(PropertyChangeListener listener) {
-                support.addPropertyChangeListener(listener);
-            }
-
-            public void removePropertyChangeListener(PropertyChangeListener listener) {
-                support.removePropertyChangeListener(listener);
-            }
-
-            public boolean isModified() {
-                return isModified;
-            }
-
-            public void setModified(boolean isModified) {
-                boolean oldIsModified = this.isModified;
-                this.isModified = isModified;
-                support.firePropertyChange(PROPERTY_MODIFIED, oldIsModified, isModified);
-                
-                if(isModified) {
-                    getCookieSet().assign(SaveCookie.class, saveCookie);
-                }
-                else {
-                    System.out.println("don't save");
-                    getCookieSet().assign(SaveCookie.class);
-                }
-                fireCookieChange();
-            }
-        };
-    }
-
     public void saveAs(FileObject folder, String name) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        System.out.println("save as");
+        getDataObject().setModified(false);
     }
 }

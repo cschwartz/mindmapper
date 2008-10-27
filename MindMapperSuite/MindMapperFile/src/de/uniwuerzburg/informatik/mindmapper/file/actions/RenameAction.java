@@ -6,20 +6,21 @@
 package de.uniwuerzburg.informatik.mindmapper.file.actions;
 
 import de.uniwuerzburg.informatik.mindmapper.api.Node;
-import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
+import org.openide.loaders.DataObject;
 
 /**
  *
  * @author blair
  */
-public class RenameAction extends AbstractUndoableEdit{
+public class RenameAction extends AbstractUndoableAction{
     protected String newName;
     protected String oldName;
     protected Node node;
 
-    public RenameAction(Node node, String newName) {
+    public RenameAction(DataObject dataObject, Node node, String newName) {
+        super(dataObject);
         this.newName = newName;
         this.oldName = node.getName();
         this.node = node;

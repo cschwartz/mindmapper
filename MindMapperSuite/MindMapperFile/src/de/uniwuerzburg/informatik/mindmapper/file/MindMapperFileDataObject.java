@@ -14,6 +14,7 @@ import org.openide.awt.UndoRedo;
 import org.openide.awt.UndoRedo.Manager;
 import org.openide.cookies.CloseCookie;
 import org.openide.cookies.OpenCookie;
+import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiDataObject;
@@ -31,6 +32,7 @@ public class MindMapperFileDataObject extends MultiDataObject implements Documen
     protected Document document;
     protected Lookup lookup;
     protected UndoRedo.Manager undoRedoManager = new UndoRedo.Manager();
+    protected MindMapperFileDataNode nodeDelegate;
 
     public MindMapperFileDataObject(FileObject pf, MindMapperFileDataLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
@@ -40,6 +42,14 @@ public class MindMapperFileDataObject extends MultiDataObject implements Documen
         document = factory.loadDocument(pf);
         if(document == null)
             document = factory.createDocument();
+
+        getCookieSet().assign(SaveCookie.class, new SaveCookie() {
+
+            public void save() throws IOException {
+
+                setModified(false);
+            }
+        });
     }
 
     public Document getDocument() {
@@ -48,7 +58,10 @@ public class MindMapperFileDataObject extends MultiDataObject implements Documen
 
     @Override
     protected Node createNodeDelegate() {
-        return new MindMapperFileDataNode(this, getLookup());
+        if(nodeDelegate == null) {
+            nodeDelegate = new MindMapperFileDataNode(this, getLookup());
+        }
+        return nodeDelegate;
     }
 
     @Override
@@ -78,7 +91,5 @@ public class MindMapperFileDataObject extends MultiDataObject implements Documen
             editor.setDisplayName(dataObject.getLookup().lookup(Document.class).getName());
             return editor;
         }
-
-        
     }
 }

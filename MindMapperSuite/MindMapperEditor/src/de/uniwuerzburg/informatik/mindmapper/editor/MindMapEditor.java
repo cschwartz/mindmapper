@@ -8,22 +8,18 @@ package de.uniwuerzburg.informatik.mindmapper.editor;
 
 import de.uniwuerzburg.informatik.mindmapper.editorapi.DocumentCookie;
 import de.uniwuerzburg.informatik.mindmapper.editorapi.UndoRedoManagerCookie;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import javax.swing.ActionMap;
 import javax.swing.text.DefaultEditorKit;
 import org.openide.awt.UndoRedo;
-import org.openide.cookies.SaveCookie;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.BeanTreeView;
 import org.openide.loaders.MultiDataObject;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
-import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ProxyLookup;
 import org.openide.windows.CloneableTopComponent;
 
@@ -48,7 +44,6 @@ public class MindMapEditor extends CloneableTopComponent implements ExplorerMana
         map.put(DefaultEditorKit.cutAction, ExplorerUtils.actionCut(explorerManager));
         map.put(DefaultEditorKit.pasteAction, ExplorerUtils.actionPaste(explorerManager));
         map.put("delete", ExplorerUtils.actionDelete(explorerManager, true));
-        
     }
     /** Creates new form MindMapEditor */
     public MindMapEditor(MultiDataObject dataObject) {
@@ -68,20 +63,7 @@ public class MindMapEditor extends CloneableTopComponent implements ExplorerMana
         documentNode = dataObject.getNodeDelegate();
         setName(documentNode.getLookup().lookup(DocumentCookie.class).getDocument().getName());
         explorerManager.setRootContext(documentNode);
-//        setActivatedNodes(new Node[] {documentNode});
-//        explorerManager.addPropertyChangeListener(new PropertyChangeListener() {
-//
-//            public void propertyChange(PropertyChangeEvent evt) {
-//                if(evt.getPropertyName().equals(ExplorerManager.PROP_SELECTED_NODES)) {
-//                    Node[] nodes = new Node[explorerManager.getSelectedNodes().length + 1];
-//                    for(int i = 0; i < explorerManager.getSelectedNodes().length; i++) {
-//                        nodes[i] = explorerManager.getSelectedNodes()[i];
-//                    }
-//                    nodes[explorerManager.getSelectedNodes().length] = documentNode;
-//                    setActivatedNodes(nodes);
-//                }
-//            }
-//        });
+
         associateLookup(new ProxyLookup(new Lookup[] {ExplorerUtils.createLookup(explorerManager, getActionMap())}));
         undoRedoManager = documentNode.getLookup().lookup(UndoRedoManagerCookie.class).getUndoRedoManager();
     }
@@ -140,6 +122,4 @@ public class MindMapEditor extends CloneableTopComponent implements ExplorerMana
         dataObject = (MultiDataObject)arg0.readObject();
         initFrom(dataObject);
     }
-    
-    
 }
