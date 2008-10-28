@@ -49,14 +49,16 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener, SaveAs
     
     protected Node node;
     protected Document document;
+    protected Lookup lookup;
     
-    public MindMapNode(Document document, Children children, Node node) {
+    public MindMapNode(Document document, Children children, Node node, Lookup lookup) {
         super(children);
         this.node = node;
         this.node.addPropertyChangeListener(this);
         this.document = document;
         this.document.addPropertyChangeListener(this);
-
+        this.lookup = lookup;
+        
         getCookieSet().add(new AddChildCookie() {
 
             public void addChild() {
@@ -88,12 +90,7 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener, SaveAs
         });
 
         if(document.isModified())
-            getCookieSet().add(new SaveCookie() {
-
-            public void save() throws IOException {
-                System.out.println("save");
-            }
-        });
+            getCookieSet().add(lookup.lookup(SaveCookie.class));
     }
 
     @Override
@@ -143,7 +140,7 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener, SaveAs
     public void propertyChange(PropertyChangeEvent evt) {
         if(evt.getPropertyName().equals(Node.PROPERTY_CHILDREN) || 
                 evt.getPropertyName().equals(Node.PROPERTY_ALL)) {
-            setChildren(new NodeChildren(document, node));
+            setChildren(new NodeChildren(document, node, lookup));
         }
         if(evt.getPropertyName().equals(Node.PROPERTY_NAME) ||
                 evt.getPropertyName().equals(Node.PROPERTY_ALL)) {
@@ -151,12 +148,7 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener, SaveAs
         }
         if(evt.getPropertyName().equals(Document.PROPERTY_MODIFIED)) {
             if(evt.getNewValue().equals(Boolean.TRUE)) {
-                getCookieSet().assign(SaveCookie.class, new SaveCookie() {
-
-                    public void save() throws IOException {
-                        System.out.println("save");
-                    }
-                });
+                getCookieSet().assign(SaveCookie.class, lookup.lookup(SaveCookie.class));
             }
             else if(evt.getNewValue().equals(Boolean.FALSE)){
                 getCookieSet().assign(SaveCookie.class);

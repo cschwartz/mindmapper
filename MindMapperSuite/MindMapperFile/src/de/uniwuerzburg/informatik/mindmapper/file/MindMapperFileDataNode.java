@@ -23,24 +23,31 @@ public class MindMapperFileDataNode extends DataNode implements PropertyChangeLi
     private static final String IMAGE_ICON_BASE = "SET/PATH/TO/ICON/HERE";
     public static final String PROPERTY_DOCUMENT_CHANGED = "mindmapperfiledatanode_documentchanged";
     protected Document document;
-    
+
+    protected Lookup documentLookup;
+
     protected SaveCookie saveCookie;
     
-    public MindMapperFileDataNode(MindMapperFileDataObject obj) {
-        super(obj, new DocumentChildren(obj.lookup.lookup(Document.class)));
+//    public MindMapperFileDataNode(MindMapperFileDataObject obj) {
+//        super(obj, new DocumentChildren(obj.lookup.lookup(Document.class)));
+//        this.document = obj.lookup.lookup(Document.class);
+//        this.document.addPropertyChangeListener(this);
+//
+//        saveCookie = obj.getLookup().lookup(SaveCookie.class);
+//
+//        ((DocumentChildren)getChildren()).setDataNode(this);
+////        setIconBaseWithExtension(IMAGE_ICON_BASE);
+//    }
+
+    MindMapperFileDataNode(MindMapperFileDataObject obj, Lookup lookup) {
+        super(obj, new DocumentChildren(obj.lookup.lookup(Document.class), lookup));
         this.document = obj.lookup.lookup(Document.class);
         this.document.addPropertyChangeListener(this);
 
         saveCookie = obj.getLookup().lookup(SaveCookie.class);
 
-        ((DocumentChildren)getChildren()).setDataNode(this);
-//        setIconBaseWithExtension(IMAGE_ICON_BASE);
-    }
-
-    MindMapperFileDataNode(MindMapperFileDataObject obj, Lookup lookup) {
-        this(obj);
         getCookieSet().add(lookup.lookup(DocumentCookie.class));
-
+        documentLookup = lookup;
         //        setIconBaseWithExtension(IMAGE_ICON_BASE);
     }
 
@@ -91,7 +98,7 @@ public class MindMapperFileDataNode extends DataNode implements PropertyChangeLi
     public void propertyChange(PropertyChangeEvent evt) {
         if(evt.getPropertyName().equals(Document.PROPERTY_ROOT) ||
                 evt.getPropertyName().equals(Document.PROPERTY_ALL)) {
-            setChildren(new DocumentChildren(document, this));
+            setChildren(new DocumentChildren(document, documentLookup));
 
         }
         if(evt.getPropertyName().equals(Document.PROPERTY_NAME) ||
@@ -115,7 +122,7 @@ public class MindMapperFileDataNode extends DataNode implements PropertyChangeLi
         if(evt.getPropertyName().equals(Document.PROPERTY_MODIFIED)) {
             if(evt.getNewValue().equals(Boolean.TRUE)) {
                 getDataObject().setModified(true);
-                getCookieSet().assign(SaveCookie.class, saveCookie);
+                getCookieSet().assign(SaveCookie.class, documentLookup.lookup(SaveCookie.class));
             } else {
                 getDataObject().setModified(false);
                 getCookieSet().assign(SaveCookie.class);
