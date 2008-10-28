@@ -112,15 +112,13 @@ public class MindMapperFileDataNode extends DataNode implements PropertyChangeLi
 //            fireCookieChange();
 //        }
 
-        if(evt.getPropertyName().equals(DataObject.PROP_MODIFIED)) {
+        if(evt.getPropertyName().equals(Document.PROPERTY_MODIFIED)) {
             if(evt.getNewValue().equals(Boolean.TRUE)) {
                 getDataObject().setModified(true);
                 getCookieSet().assign(SaveCookie.class, saveCookie);
-                firePropertyChange(PROPERTY_DOCUMENT_CHANGED, null, true);
             } else {
                 getDataObject().setModified(false);
                 getCookieSet().assign(SaveCookie.class);
-                firePropertyChange(PROPERTY_DOCUMENT_CHANGED, null, false);
             }
             fireCookieChange();
         }

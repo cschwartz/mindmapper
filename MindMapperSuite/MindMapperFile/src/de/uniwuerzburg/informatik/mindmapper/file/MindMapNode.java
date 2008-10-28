@@ -5,11 +5,9 @@
 
 package de.uniwuerzburg.informatik.mindmapper.file;
 
-import de.uniwuerzburg.informatik.mindmapper.file.actions.AddChildAction;
-import de.uniwuerzburg.informatik.mindmapper.file.actions.RemoveChildAction;
+import de.uniwuerzburg.informatik.mindmapper.api.Document;
 import de.uniwuerzburg.informatik.mindmapper.api.Node;
 import de.uniwuerzburg.informatik.mindmapper.editorapi.NodeCookie;
-import de.uniwuerzburg.informatik.mindmapper.editorapi.UndoRedoManagerCookie;
 import de.uniwuerzburg.informatik.mindmapper.file.cookies.AddChildCookie;
 import de.uniwuerzburg.informatik.mindmapper.file.cookies.RemoveChildCookie;
 import java.awt.datatransfer.Transferable;
@@ -27,7 +25,6 @@ import org.openide.actions.DeleteAction;
 import org.openide.actions.NewAction;
 import org.openide.actions.PasteAction;
 import org.openide.actions.RenameAction;
-import org.openide.awt.UndoRedo;
 import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
@@ -51,32 +48,23 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener, SaveAs
     static int i = 0;
     
     protected Node node;
-    protected MindMapperFileDataNode dataNode;
+    protected Document document;
     
-    public MindMapNode(MindMapperFileDataNode dataNode, Children children, Node node) {
+    public MindMapNode(Document document, Children children, Node node) {
         super(children);
         this.node = node;
         this.node.addPropertyChangeListener(this);
-        this.dataNode = dataNode;
-        this.dataNode.addPropertyChangeListener(this);
-        this.dataNode.getDataObject().addPropertyChangeListener(this);
-        
-        addPropertyChangeListener(dataNode);
+        this.document = document;
+        this.document.addPropertyChangeListener(this);
 
         getCookieSet().add(new AddChildCookie() {
 
             public void addChild() {
-                UndoRedo.Manager undoRedo = MindMapNode.this.dataNode.getLookup().lookup(UndoRedoManagerCookie.class).getUndoRedoManager();
-                AddChildAction action = new AddChildAction(MindMapNode.this.dataNode.getDataObject(), MindMapNode.this.node);
-                undoRedo.addEdit(action);
-                markAsModified();
+                MindMapNode.this.document.createAddChildAction(MindMapNode.this.node);
             }
 
             public void addChild(Node child) {
-                UndoRedo.Manager undoRedo = MindMapNode.this.dataNode.getLookup().lookup(UndoRedoManagerCookie.class).getUndoRedoManager();
-                AddChildAction action = new AddChildAction(MindMapNode.this.dataNode.getDataObject(), MindMapNode.this.node, child);
-                undoRedo.addEdit(action);
-                markAsModified();
+                MindMapNode.this.document.createAppendChildAction(MindMapNode.this.node, child);
             }
         });
         
@@ -97,6 +85,14 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener, SaveAs
                 return MindMapNode.this.node;
             }
             
+        });
+
+        if(document.isModified())
+            getCookieSet().add(new SaveCookie() {
+
+            public void save() throws IOException {
+                System.out.println("save");
+            }
         });
     }
 
@@ -138,10 +134,8 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener, SaveAs
     @Override
     public void destroy() throws IOException {
         Node parent = getParentNode().getLookup().lookup(NodeCookie.class).getNode();
-        UndoRedo.Manager undoRedo = MindMapNode.this.dataNode.getLookup().lookup(UndoRedoManagerCookie.class).getUndoRedoManager();
-        RemoveChildAction action = new RemoveChildAction(parent, node);
-        undoRedo.addEdit(action);
-        markAsModified();
+        document.createRemoveChildAction(parent, node);
+        
     }
     
     
@@ -149,17 +143,22 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener, SaveAs
     public void propertyChange(PropertyChangeEvent evt) {
         if(evt.getPropertyName().equals(Node.PROPERTY_CHILDREN) || 
                 evt.getPropertyName().equals(Node.PROPERTY_ALL)) {
-            setChildren(new NodeChildren(dataNode, node));
+            setChildren(new NodeChildren(document, node));
         }
         if(evt.getPropertyName().equals(Node.PROPERTY_NAME) ||
                 evt.getPropertyName().equals(Node.PROPERTY_ALL)) {
             setDisplayName(node.getName());
         }
-        if(evt.getPropertyName().equals(DataObject.PROP_MODIFIED)) {
+        if(evt.getPropertyName().equals(Document.PROPERTY_MODIFIED)) {
             if(evt.getNewValue().equals(Boolean.TRUE)) {
-                getCookieSet().assign(SaveCookie.class, dataNode.getLookup().lookup(SaveCookie.class));
+                getCookieSet().assign(SaveCookie.class, new SaveCookie() {
+
+                    public void save() throws IOException {
+                        System.out.println("save");
+                    }
+                });
             }
-            else {
+            else if(evt.getNewValue().equals(Boolean.FALSE)){
                 getCookieSet().assign(SaveCookie.class);
             }
         }
@@ -190,9 +189,7 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener, SaveAs
 
     @Override
     public void setName(String s) {
-        UndoRedo.Manager undoRedo = MindMapNode.this.dataNode.getLookup().lookup(UndoRedoManagerCookie.class).getUndoRedoManager();
-        undoRedo.addEdit(new de.uniwuerzburg.informatik.mindmapper.file.actions.RenameAction(MindMapNode.this.node, s));
-        markAsModified();
+        document.createRenameAction(node, s);
     }
 
     @Override
@@ -249,22 +246,16 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener, SaveAs
         return true;
     }
 
-    protected void markAsModified() {
-        dataNode.getDataObject().setModified(true);
-    }
-
     public void saveAs(FileObject folder, String name) throws IOException {
-        dataNode.saveAs(folder, name);
+//        dataNode.saveAs(folder, name);
+        System.out.println("Save As");
     }
 
     class NewNodeType extends NewType{
 
         @Override
         public void create() throws IOException {
-            UndoRedo.Manager undoRedo = MindMapNode.this.dataNode.getLookup().lookup(UndoRedoManagerCookie.class).getUndoRedoManager();
-            AddChildAction action = new AddChildAction(MindMapNode.this.dataNode.getDataObject(), MindMapNode.this.node);
-            undoRedo.addEdit(action);
-            markAsModified();
+            MindMapNode.this.document.createAddChildAction(MindMapNode.this.node);
         }
 
         @Override

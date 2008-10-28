@@ -5,6 +5,7 @@
 
 package de.uniwuerzburg.informatik.mindmapper.spi;
 
+import de.uniwuerzburg.informatik.mindmapper.api.Document;
 import de.uniwuerzburg.informatik.mindmapper.api.Node;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -16,18 +17,18 @@ import java.util.NoSuchElementException;
  *
  * @author blair
  */
-class NodeImpl implements Node{
+public class NodeImpl implements Node{
 
     private static final String PROPERTY_INDEX = "nodeimpl_index";
     protected PropertyChangeSupport support;
     protected String name;
     protected List<Node> children;
+    Document document;
 
-    NodeImpl() {
+    public NodeImpl() {
         support = new PropertyChangeSupport(this);
         children = new LinkedList<Node>();
-        name = "";
-        
+        name = "";        
     }
 
     public String getName() {
@@ -82,5 +83,13 @@ class NodeImpl implements Node{
         }
         
         return newNode;
+    }
+
+    public Document getDocument() {
+        return document;
+    }
+
+    public void setDocument(Document document) {
+        this.document = document;
     }
 }

@@ -7,7 +7,8 @@ package de.uniwuerzburg.informatik.mindmapper.api;
 
 import java.beans.PropertyChangeListener;
 import java.util.NoSuchElementException;
-import javax.swing.undo.StateEditable;
+import javax.swing.undo.AbstractUndoableEdit;
+import org.openide.awt.UndoRedo;
 
 /**
  *
@@ -18,6 +19,7 @@ public interface Document{
     public static final String PROPERTY_LINKS = "document_links";
     public static final String PROPERTY_ALL = "document_all";
     public static final String PROPERTY_ROOT = "document_root";
+    public static final String PROPERTY_MODIFIED = "document_modified";
     
     public String getName();
     public void setName(String name);
@@ -32,4 +34,14 @@ public interface Document{
     
     public void addPropertyChangeListener(PropertyChangeListener listener);
     public void removePropertyChangeListener(PropertyChangeListener listener);
+
+    public UndoRedo.Manager getUndoRedoManager();
+
+    public AbstractUndoableEdit createAddChildAction(Node parent);
+    public AbstractUndoableEdit createAppendChildAction(Node parent, Node childToAppend);
+    public AbstractUndoableEdit createRemoveChildAction(Node parent, Node childToRemove);
+    public AbstractUndoableEdit createRenameAction(Node parent, String newName);
+
+    public boolean isModified();
+    public void setModified(boolean modified);
 }

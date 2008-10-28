@@ -29,6 +29,8 @@ public interface Node{
     
     public void addPropertyChangeListener(PropertyChangeListener listener);
     public void removePropertyChangeListener(PropertyChangeListener listener);
-    
+
+    public Document getDocument();
+
     public Node copy();
 }

@@ -5,17 +5,18 @@
 
 package de.uniwuerzburg.informatik.mindmapper.file;
 
+import de.uniwuerzburg.informatik.mindmapper.api.Document;
 import de.uniwuerzburg.informatik.mindmapper.api.Node;
 import org.openide.nodes.Children;
 
 public class NodeChildren extends Children.Keys<Node>{
 
         protected Node node;
-        protected MindMapperFileDataNode dataNode;
+        protected Document document;
         
-        public NodeChildren(MindMapperFileDataNode dataNode, Node node) {
+        public NodeChildren(Document document, Node node) {
             this.node = node;
-            this.dataNode = dataNode;
+            this.document = document;
         }
         
         @Override
@@ -30,8 +31,8 @@ public class NodeChildren extends Children.Keys<Node>{
         @Override
         protected org.openide.nodes.Node[] createNodes(Node key) {
             if(key.getChildren().length != 0) {
-                return new org.openide.nodes.Node[] { new MindMapNode(dataNode, new NodeChildren(dataNode, key), key) };
+                return new org.openide.nodes.Node[] { new MindMapNode(document, new NodeChildren(document, key), key) };
             } else
-                return new org.openide.nodes.Node[] { new MindMapNode(dataNode, Children.LEAF, key)};
+                return new org.openide.nodes.Node[] { new MindMapNode(document, Children.LEAF, key)};
         }
     }

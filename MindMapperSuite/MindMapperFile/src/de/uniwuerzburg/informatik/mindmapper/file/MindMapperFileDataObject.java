@@ -19,6 +19,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.OpenSupport;
+import org.openide.loaders.SaveAsCapable;
 import org.openide.nodes.CookieSet;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
@@ -31,7 +32,6 @@ public class MindMapperFileDataObject extends MultiDataObject implements Documen
 
     protected Document document;
     protected Lookup lookup;
-    protected UndoRedo.Manager undoRedoManager = new UndoRedo.Manager();
     protected MindMapperFileDataNode nodeDelegate;
 
     public MindMapperFileDataObject(FileObject pf, MindMapperFileDataLoader loader) throws DataObjectExistsException, IOException {
@@ -67,7 +67,7 @@ public class MindMapperFileDataObject extends MultiDataObject implements Documen
     @Override
     public Lookup getLookup() {
         if(lookup == null) {
-            lookup = new ProxyLookup(new Lookup[] {super.getCookieSet().getLookup(), Lookups.fixed(this, new MindMapOpenSupport(getPrimaryEntry()), document, undoRedoManager)});
+            lookup = new ProxyLookup(new Lookup[] {super.getCookieSet().getLookup(), Lookups.fixed(this, new MindMapOpenSupport(getPrimaryEntry()), document, document.getUndoRedoManager())});
 //            lookup = Lookups.fixed(new Object[] {document});
 //            lookup = super.getCookieSet().getLookup();
         }
@@ -75,7 +75,7 @@ public class MindMapperFileDataObject extends MultiDataObject implements Documen
     }
 
     public Manager getUndoRedoManager() {
-        return undoRedoManager;
+        return document.getUndoRedoManager();
     }
     
     protected static class MindMapOpenSupport extends OpenSupport implements OpenCookie, CloseCookie {
@@ -91,5 +91,17 @@ public class MindMapperFileDataObject extends MultiDataObject implements Documen
             editor.setDisplayName(dataObject.getLookup().lookup(Document.class).getName());
             return editor;
         }
+    }
+
+    public class SaveSupport implements SaveCookie, SaveAsCapable {
+
+        public void save() throws IOException {
+            System.out.println("save");
+        }
+
+        public void saveAs(FileObject folder, String name) throws IOException {
+            System.out.println("save as");
+        }
+        
     }
 }

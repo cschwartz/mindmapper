@@ -46,7 +46,7 @@ public class DocumentChildren extends Children.Keys<Integer> {
     @Override
     protected Node[] createNodes(Integer key) {
         if(key == CHILD_ROOT) {
-            MindMapNode node = new MindMapNode(dataNode, new NodeChildren(dataNode, document.getRootNode()), document.getRootNode());
+            MindMapNode node = new MindMapNode(document, new NodeChildren(document, document.getRootNode()), document.getRootNode());
             return new Node[] { node };
 //            } else if(key == CHILD_LINKS) {
 //                return new Node[] { new MindMapLinks(document) };

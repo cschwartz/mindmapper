@@ -8,13 +8,18 @@ package de.uniwuerzburg.informatik.mindmapper.spi;
 import de.uniwuerzburg.informatik.mindmapper.api.Document;
 import de.uniwuerzburg.informatik.mindmapper.api.Link;
 import de.uniwuerzburg.informatik.mindmapper.api.Node;
+import de.uniwuerzburg.informatik.mindmapper.spi.actions.AddChildAction;
+import de.uniwuerzburg.informatik.mindmapper.spi.actions.AppendChildAction;
+import de.uniwuerzburg.informatik.mindmapper.spi.actions.RemoveChildAction;
+import de.uniwuerzburg.informatik.mindmapper.spi.actions.RenameAction;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import javax.swing.undo.StateEditable;
+import javax.swing.undo.AbstractUndoableEdit;
+import org.openide.awt.UndoRedo;
+import org.openide.awt.UndoRedo.Manager;
 
 /**
  *
@@ -25,12 +30,16 @@ public class DocumentImpl implements Document{
     protected String name;
     protected Node rootNode;
     protected List<Link> links;
-    
+    protected UndoRedo.Manager undoRedoManager;
+    protected boolean modified;
+
     DocumentImpl() {
         support = new PropertyChangeSupport(this);
         rootNode = new NodeImpl();
+        
         rootNode.setName("New Document");
         links = new LinkedList<Link>();
+        undoRedoManager = new UndoRedo.Manager();
     }
     
     public String getName() {
@@ -83,4 +92,36 @@ public class DocumentImpl implements Document{
     public String toString() {
         return name + " : " + links.size() + " links";
     }
+
+    public Manager getUndoRedoManager() {
+        return undoRedoManager;
+    }
+
+    public AbstractUndoableEdit createAddChildAction(Node parent) {
+        return new AddChildAction(this, parent);
+    }
+
+    public AbstractUndoableEdit createAppendChildAction(Node parent, Node childToAppend) {
+        return new AppendChildAction(this, parent, childToAppend);
+    }
+
+    public AbstractUndoableEdit createRemoveChildAction(Node parent, Node childToRemove) {
+        return new RemoveChildAction(this, parent, childToRemove);
+    }
+
+    public AbstractUndoableEdit createRenameAction(Node parent, String newName) {
+        return new RenameAction(this, parent, newName);
+    }
+
+    public boolean isModified() {
+        return modified;
+    }
+
+    public void setModified(boolean modified) {
+        boolean oldModified = this.modified;
+        this.modified = modified;
+        support.firePropertyChange(PROPERTY_MODIFIED, oldModified, modified);
+    }
+
+
 }

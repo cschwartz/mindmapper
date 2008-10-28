@@ -3,12 +3,12 @@
  * and open the template in the editor.
  */
 
-package de.uniwuerzburg.informatik.mindmapper.file.actions;
+package de.uniwuerzburg.informatik.mindmapper.spi.actions;
 
 import de.uniwuerzburg.informatik.mindmapper.api.Node;
+import de.uniwuerzburg.informatik.mindmapper.spi.DocumentImpl;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
-import org.openide.loaders.DataObject;
 
 /**
  *
@@ -19,12 +19,14 @@ public class RenameAction extends AbstractUndoableAction{
     protected String oldName;
     protected Node node;
 
-    public RenameAction(DataObject dataObject, Node node, String newName) {
-        super(dataObject);
+    public RenameAction(DocumentImpl document, Node node, String newName) {
+        super(document);
         this.newName = newName;
         this.oldName = node.getName();
         this.node = node;
         node.setName(newName);
+
+        postInit();
     }
 
     @Override
