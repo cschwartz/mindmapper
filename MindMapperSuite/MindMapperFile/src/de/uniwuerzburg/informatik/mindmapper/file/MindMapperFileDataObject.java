@@ -34,6 +34,8 @@ public class MindMapperFileDataObject extends MultiDataObject implements Documen
     protected Lookup lookup;
     protected MindMapperFileDataNode nodeDelegate;
 
+    protected SaveSupport saveSupport;
+
     public MindMapperFileDataObject(FileObject pf, MindMapperFileDataLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
         CookieSet cookies = getCookieSet();
@@ -43,13 +45,8 @@ public class MindMapperFileDataObject extends MultiDataObject implements Documen
         if(document == null)
             document = factory.createDocument();
 
-        getCookieSet().assign(SaveCookie.class, new SaveCookie() {
-
-            public void save() throws IOException {
-
-                setModified(false);
-            }
-        });
+        saveSupport = new SaveSupport();
+        getCookieSet().assign(SaveCookie.class, saveSupport);
     }
 
     public Document getDocument() {
@@ -96,7 +93,8 @@ public class MindMapperFileDataObject extends MultiDataObject implements Documen
     public class SaveSupport implements SaveCookie, SaveAsCapable {
 
         public void save() throws IOException {
-            System.out.println("save");
+            Lookup.getDefault().lookup(MindMapFactory.class).saveDocument(MindMapperFileDataObject.this.getPrimaryFile(), document);
+            document.setModified(false);
         }
 
         public void saveAs(FileObject folder, String name) throws IOException {

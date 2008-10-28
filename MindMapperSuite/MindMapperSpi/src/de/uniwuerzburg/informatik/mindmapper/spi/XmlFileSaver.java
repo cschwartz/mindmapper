@@ -50,7 +50,7 @@ public class XmlFileSaver implements XmlFileStorage{
             Element root = xmlDocument.createElementNS(xmlNamespace, rootElement);
             root.setAttributeNS(xmlNamespace, rootNameAttribute, document.getName());
             xmlDocument.getDocumentElement().appendChild(root);
-            
+
             Source source = new DOMSource(xmlDocument);
             Result result = new StreamResult(fileObject.getOutputStream(lock));
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
