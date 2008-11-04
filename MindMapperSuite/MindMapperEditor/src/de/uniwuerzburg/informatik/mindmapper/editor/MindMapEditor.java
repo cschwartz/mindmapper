@@ -7,13 +7,19 @@
 package de.uniwuerzburg.informatik.mindmapper.editor;
 
 import de.uniwuerzburg.informatik.mindmapper.editorapi.DocumentCookie;
+import de.uniwuerzburg.informatik.mindmapper.editorapi.DocumentNodeCookie;
 import de.uniwuerzburg.informatik.mindmapper.editorapi.UndoRedoManagerCookie;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.Enumeration;
 import javax.swing.ActionMap;
 import javax.swing.text.DefaultEditorKit;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.awt.UndoRedo;
+import org.openide.cookies.CloseCookie;
+import org.openide.cookies.SaveCookie;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.BeanTreeView;
@@ -60,7 +66,8 @@ public class MindMapEditor extends CloneableTopComponent implements ExplorerMana
     }
 
     protected void initFrom(MultiDataObject dataObject) {
-        documentNode = dataObject.getNodeDelegate();
+        documentNode = dataObject.getLookup().lookup(DocumentNodeCookie.class).getDocumentNode();
+
         setName(documentNode.getLookup().lookup(DocumentCookie.class).getDocument().getName());
         explorerManager.setRootContext(documentNode);
 
@@ -120,6 +127,48 @@ public class MindMapEditor extends CloneableTopComponent implements ExplorerMana
         super.readExternal(arg0);
 
         dataObject = (MultiDataObject)arg0.readObject();
+        dataObject.getCookie(DocumentNodeCookie.class).open();
         initFrom(dataObject);
     }
+
+    @Override
+    public boolean canClose() {
+        boolean isModified = documentNode.getCookie(DocumentCookie.class).getDocument().isModified();
+        Enumeration<CloneableTopComponent> components = getReference().getComponents();
+        int numComponents = 0;
+        while(components.hasMoreElements()) {
+            components.nextElement();
+            numComponents++;
+        }
+
+        if(numComponents > 1 || !isModified)
+            return true;
+        else {
+            NotifyDescriptor unsavedChangedDialog = new NotifyDescriptor.Confirmation(
+                    "Do you want to save before quitting",
+                    "Unsaved changes");
+            Object returnValue = DialogDisplayer.getDefault().notify(unsavedChangedDialog);
+
+            if(returnValue == NotifyDescriptor.YES_OPTION) {
+                try {
+                documentNode.getCookie(SaveCookie.class).save();
+                dataObject.getCookie(CloseCookie.class).close();
+                return true;
+                } catch(IOException e) {
+                    NotifyDescriptor n = new NotifyDescriptor.Exception(e);
+                    DialogDisplayer.getDefault().notify(n);
+                    dataObject.getCookie(CloseCookie.class).close();
+                    return false;
+                }
+            } else if(returnValue.equals(NotifyDescriptor.NO_OPTION)) {
+                dataObject.getCookie(CloseCookie.class).close();
+                return true;
+            } else {
+                return false;
+            }
+
+        }
+    }
+
+
 }

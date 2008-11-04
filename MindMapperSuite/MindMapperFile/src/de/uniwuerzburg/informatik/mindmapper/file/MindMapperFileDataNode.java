@@ -6,6 +6,7 @@ package de.uniwuerzburg.informatik.mindmapper.file;
 
 import de.uniwuerzburg.informatik.mindmapper.api.Document;
 import de.uniwuerzburg.informatik.mindmapper.editorapi.DocumentCookie;
+import de.uniwuerzburg.informatik.mindmapper.file.MindMapperFileDataObject.SaveSupport;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -19,7 +20,7 @@ import org.openide.nodes.PropertySupport;
 import org.openide.nodes.Sheet;
 import org.openide.util.Lookup;
 
-public class MindMapperFileDataNode extends DataNode implements PropertyChangeListener, SaveAsCapable{
+public class MindMapperFileDataNode extends DataNode implements PropertyChangeListener{
     private static final String IMAGE_ICON_BASE = "SET/PATH/TO/ICON/HERE";
     public static final String PROPERTY_DOCUMENT_CHANGED = "mindmapperfiledatanode_documentchanged";
     protected Document document;
@@ -27,24 +28,13 @@ public class MindMapperFileDataNode extends DataNode implements PropertyChangeLi
     protected Lookup documentLookup;
 
     protected SaveCookie saveCookie;
-    
-//    public MindMapperFileDataNode(MindMapperFileDataObject obj) {
-//        super(obj, new DocumentChildren(obj.lookup.lookup(Document.class)));
-//        this.document = obj.lookup.lookup(Document.class);
-//        this.document.addPropertyChangeListener(this);
-//
-//        saveCookie = obj.getLookup().lookup(SaveCookie.class);
-//
-//        ((DocumentChildren)getChildren()).setDataNode(this);
-////        setIconBaseWithExtension(IMAGE_ICON_BASE);
-//    }
 
     MindMapperFileDataNode(MindMapperFileDataObject obj, Lookup lookup) {
-        super(obj, new DocumentChildren(obj.lookup.lookup(Document.class), lookup));
-        this.document = obj.lookup.lookup(Document.class);
+        super(obj, new DocumentChildren(obj.lookup.lookup(DocumentCookie.class).getDocument(), lookup));
+        this.document = lookup.lookup(DocumentCookie.class).getDocument();
         this.document.addPropertyChangeListener(this);
 
-        saveCookie = obj.getLookup().lookup(SaveCookie.class);
+        saveCookie = obj.getLookup().lookup(SaveSupport.class);
 
         getCookieSet().add(lookup.lookup(DocumentCookie.class));
         documentLookup = lookup;
@@ -106,19 +96,6 @@ public class MindMapperFileDataNode extends DataNode implements PropertyChangeLi
             setDisplayName(document.getName());
         }
 
-//        if(evt.getPropertyName().equals(PROPERTY_DOCUMENT_CHANGED)) {
-//            if(evt.getNewValue().equals(Boolean.TRUE)) {
-//                getDataObject().setModified(true);
-//                getCookieSet().assign(SaveCookie.class, saveCookie);
-//                firePropertyChange(PROPERTY_DOCUMENT_CHANGED, null, true);
-//            } else {
-//                getDataObject().setModified(false);
-//                getCookieSet().assign(SaveCookie.class);
-//                firePropertyChange(PROPERTY_DOCUMENT_CHANGED, null, false);
-//            }
-//            fireCookieChange();
-//        }
-
         if(evt.getPropertyName().equals(Document.PROPERTY_MODIFIED)) {
             if(evt.getNewValue().equals(Boolean.TRUE)) {
                 getDataObject().setModified(true);
@@ -129,10 +106,5 @@ public class MindMapperFileDataNode extends DataNode implements PropertyChangeLi
             }
             fireCookieChange();
         }
-    }
-
-    public void saveAs(FileObject folder, String name) throws IOException {
-        System.out.println("save as");
-        getDataObject().setModified(false);
     }
 }

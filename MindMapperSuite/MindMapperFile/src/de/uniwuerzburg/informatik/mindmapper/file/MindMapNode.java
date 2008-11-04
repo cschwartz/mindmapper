@@ -7,6 +7,7 @@ package de.uniwuerzburg.informatik.mindmapper.file;
 
 import de.uniwuerzburg.informatik.mindmapper.api.Document;
 import de.uniwuerzburg.informatik.mindmapper.api.Node;
+import de.uniwuerzburg.informatik.mindmapper.editorapi.DocumentNodeCookie;
 import de.uniwuerzburg.informatik.mindmapper.editorapi.NodeCookie;
 import de.uniwuerzburg.informatik.mindmapper.file.cookies.AddChildCookie;
 import de.uniwuerzburg.informatik.mindmapper.file.cookies.RemoveChildCookie;
@@ -26,9 +27,6 @@ import org.openide.actions.NewAction;
 import org.openide.actions.PasteAction;
 import org.openide.actions.RenameAction;
 import org.openide.cookies.SaveCookie;
-import org.openide.filesystems.FileObject;
-import org.openide.loaders.DataObject;
-import org.openide.loaders.SaveAsCapable;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.NodeTransfer;
@@ -44,7 +42,7 @@ import org.openide.util.lookup.Lookups;
  *
  * @author blair
  */
-class MindMapNode extends AbstractNode implements PropertyChangeListener, SaveAsCapable{
+class MindMapNode extends AbstractNode implements PropertyChangeListener{
     static int i = 0;
     
     protected Node node;
@@ -220,7 +218,7 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener, SaveAs
 
     @Override
     public boolean canCut() {
-        return true;
+        return !(getParentNode() instanceof MindMapperFileDataNode);
     }
 
     @Override
@@ -230,17 +228,12 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener, SaveAs
 
     @Override
     public boolean canDestroy() {
-        return true;
+        return !(getParentNode() instanceof MindMapperFileDataNode);
     }
 
     @Override
     public boolean canRename() {
         return true;
-    }
-
-    public void saveAs(FileObject folder, String name) throws IOException {
-//        dataNode.saveAs(folder, name);
-        System.out.println("Save As");
     }
 
     class NewNodeType extends NewType{
