@@ -7,7 +7,6 @@ package de.uniwuerzburg.informatik.mindmapper.api;
 
 import java.beans.PropertyChangeListener;
 import java.util.NoSuchElementException;
-import javax.swing.undo.StateEditable;
 
 /**
  *

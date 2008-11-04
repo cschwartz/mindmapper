@@ -12,6 +12,7 @@ import de.uniwuerzburg.informatik.mindmapper.spi.actions.AddChildAction;
 import de.uniwuerzburg.informatik.mindmapper.spi.actions.AppendChildAction;
 import de.uniwuerzburg.informatik.mindmapper.spi.actions.RemoveChildAction;
 import de.uniwuerzburg.informatik.mindmapper.spi.actions.RenameAction;
+import de.uniwuerzburg.informatik.mindmapper.spi.actions.ReorderAction;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.LinkedList;
@@ -35,9 +36,11 @@ public class DocumentImpl implements Document{
 
     DocumentImpl() {
         support = new PropertyChangeSupport(this);
-        rootNode = new NodeImpl();
+        NodeImpl node = new NodeImpl();
+        rootNode = node;
         
-        rootNode.setName("New Document");
+        node.setName("New Document");
+        node.setDocument(this);
         links = new LinkedList<Link>();
         undoRedoManager = new UndoRedo.Manager();
     }
@@ -121,6 +124,10 @@ public class DocumentImpl implements Document{
         boolean oldModified = this.modified;
         this.modified = modified;
         support.firePropertyChange(PROPERTY_MODIFIED, oldModified, modified);
+    }
+
+    public AbstractUndoableEdit createReorderAction(Node parent, int[] permutation) {
+        return new ReorderAction(this, parent, permutation);
     }
 
 

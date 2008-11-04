@@ -9,6 +9,7 @@ import de.uniwuerzburg.informatik.mindmapper.api.Document;
 import de.uniwuerzburg.informatik.mindmapper.api.Node;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -60,6 +61,18 @@ public class NodeImpl implements Node{
             throw new NoSuchElementException(node.toString() + " is not a child of " + toString());
         children.remove(node);
         support.fireIndexedPropertyChange(PROPERTY_CHILDREN, index, node, null);
+    }
+
+    public void reorder(int[] permutation) {
+        Node[] nodes = new Node[permutation.length];
+        for(int i = 0; i < permutation.length; i++) {
+            nodes[permutation[i]] =  children.get(i);
+        }
+        children.clear();
+        for(Node node : nodes) {
+            children.add(node);
+        }
+        support.firePropertyChange(PROPERTY_CHILDREN, null, children);
     }
     
     public void addPropertyChangeListener(PropertyChangeListener listener) {

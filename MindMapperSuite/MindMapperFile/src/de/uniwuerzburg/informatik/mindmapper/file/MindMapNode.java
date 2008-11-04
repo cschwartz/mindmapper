@@ -7,7 +7,6 @@ package de.uniwuerzburg.informatik.mindmapper.file;
 
 import de.uniwuerzburg.informatik.mindmapper.api.Document;
 import de.uniwuerzburg.informatik.mindmapper.api.Node;
-import de.uniwuerzburg.informatik.mindmapper.editorapi.DocumentNodeCookie;
 import de.uniwuerzburg.informatik.mindmapper.editorapi.NodeCookie;
 import de.uniwuerzburg.informatik.mindmapper.file.cookies.AddChildCookie;
 import de.uniwuerzburg.informatik.mindmapper.file.cookies.RemoveChildCookie;
@@ -23,12 +22,14 @@ import javax.swing.Action;
 import org.openide.actions.CopyAction;
 import org.openide.actions.CutAction;
 import org.openide.actions.DeleteAction;
+import org.openide.actions.MoveDownAction;
+import org.openide.actions.MoveUpAction;
 import org.openide.actions.NewAction;
 import org.openide.actions.PasteAction;
 import org.openide.actions.RenameAction;
+import org.openide.actions.ReorderAction;
 import org.openide.cookies.SaveCookie;
 import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Children;
 import org.openide.nodes.NodeTransfer;
 import org.openide.nodes.PropertySupport;
 import org.openide.nodes.Sheet;
@@ -48,15 +49,25 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener{
     protected Node node;
     protected Document document;
     protected Lookup lookup;
-    
-    public MindMapNode(Document document, Children children, Node node, Lookup lookup) {
+
+    public MindMapNode(Document document, Node node, Lookup lookup) {
+        super(new NodeChildren(document, node, lookup));
+        init(document, node, lookup);
+    }
+
+    public MindMapNode(Document document, NodeChildren children, Node node, Lookup lookup) {
         super(children);
+        init(document, node, lookup);
+        getCookieSet().add(children.getIndex());
+    }
+
+    protected void init(Document document, Node node, Lookup lookup) {
         this.node = node;
         this.node.addPropertyChangeListener(this);
         this.document = document;
         this.document.addPropertyChangeListener(this);
         this.lookup = lookup;
-        
+
         getCookieSet().add(new AddChildCookie() {
 
             public void addChild() {
@@ -67,7 +78,7 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener{
                 MindMapNode.this.document.createAppendChildAction(MindMapNode.this.node, child);
             }
         });
-        
+
         getCookieSet().add(new RemoveChildCookie() {
 
             public void removeAsChild() {
@@ -78,13 +89,13 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener{
                 }
             }
         });
-        
+
         getCookieSet().add(new NodeCookie() {
 
             public Node getNode() {
                 return MindMapNode.this.node;
             }
-            
+
         });
 
         if(document.isModified())
@@ -122,6 +133,9 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener{
         actionList.add(SystemAction.get(CopyAction.class));
         actionList.add(SystemAction.get(PasteAction.class));
         actionList.add(SystemAction.get(RenameAction.class));
+        actionList.add(SystemAction.get(ReorderAction.class));
+        actionList.add(SystemAction.get(MoveUpAction.class));
+        actionList.add(SystemAction.get(MoveDownAction.class));
 
         return actionList.toArray(new Action[0]);
     }
@@ -129,17 +143,14 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener{
     @Override
     public void destroy() throws IOException {
         Node parent = getParentNode().getLookup().lookup(NodeCookie.class).getNode();
-        document.createRemoveChildAction(parent, node);
+        if(parent != null)
+            document.createRemoveChildAction(parent, node);
         
     }
     
     
    
     public void propertyChange(PropertyChangeEvent evt) {
-        if(evt.getPropertyName().equals(Node.PROPERTY_CHILDREN) || 
-                evt.getPropertyName().equals(Node.PROPERTY_ALL)) {
-            setChildren(new NodeChildren(document, node, lookup));
-        }
         if(evt.getPropertyName().equals(Node.PROPERTY_NAME) ||
                 evt.getPropertyName().equals(Node.PROPERTY_ALL)) {
             setDisplayName(node.getName());

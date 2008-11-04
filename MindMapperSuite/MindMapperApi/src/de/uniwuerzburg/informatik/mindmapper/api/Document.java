@@ -41,6 +41,7 @@ public interface Document{
     public AbstractUndoableEdit createAppendChildAction(Node parent, Node childToAppend);
     public AbstractUndoableEdit createRemoveChildAction(Node parent, Node childToRemove);
     public AbstractUndoableEdit createRenameAction(Node parent, String newName);
+    public AbstractUndoableEdit createReorderAction(Node parent, int[] permutation);
 
     public boolean isModified();
     public void setModified(boolean modified);
