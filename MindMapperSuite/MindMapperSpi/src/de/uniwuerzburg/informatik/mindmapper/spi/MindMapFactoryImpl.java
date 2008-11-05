@@ -7,8 +7,6 @@ package de.uniwuerzburg.informatik.mindmapper.spi;
 
 import de.uniwuerzburg.informatik.mindmapper.api.Document;
 import de.uniwuerzburg.informatik.mindmapper.api.MindMapFactory;
-import de.uniwuerzburg.informatik.mindmapper.api.Node;
-import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
@@ -38,10 +36,6 @@ public class MindMapFactoryImpl implements MindMapFactory{
         return document;
     }
     
-    public Node createNode() {
-        return new NodeImpl();
-    }
-
     public Document loadDocument(FileObject fileObject) {
         return loader.loadDocument(fileObject);
     }

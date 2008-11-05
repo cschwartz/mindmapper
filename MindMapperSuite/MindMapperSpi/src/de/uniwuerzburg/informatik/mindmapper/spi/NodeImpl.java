@@ -52,6 +52,7 @@ public class NodeImpl implements Node{
 
     public void addChild(Node node) {
         children.add(node);
+        ((NodeImpl)node).setDocument(document);
         support.fireIndexedPropertyChange(PROPERTY_CHILDREN, children.size()-1, null, node);
     }
 

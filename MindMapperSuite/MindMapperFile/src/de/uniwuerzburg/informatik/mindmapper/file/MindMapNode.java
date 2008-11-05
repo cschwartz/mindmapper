@@ -1,15 +1,8 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package de.uniwuerzburg.informatik.mindmapper.file;
 
 import de.uniwuerzburg.informatik.mindmapper.api.Document;
 import de.uniwuerzburg.informatik.mindmapper.api.Node;
-import de.uniwuerzburg.informatik.mindmapper.editorapi.NodeCookie;
-import de.uniwuerzburg.informatik.mindmapper.file.cookies.AddChildCookie;
-import de.uniwuerzburg.informatik.mindmapper.file.cookies.RemoveChildCookie;
+import de.uniwuerzburg.informatik.mindmapper.file.cookies.NodeCookie;
 import java.awt.datatransfer.Transferable;
 import java.awt.dnd.DnDConstants;
 import java.beans.PropertyChangeEvent;
@@ -40,55 +33,34 @@ import org.openide.util.datatransfer.PasteType;
 import org.openide.util.lookup.Lookups;
 
 /**
- *
- * @author blair
+ * A NetBeans Node wrapping a MindMap Node.
+ * @author Christian "blair" Schwartz.
  */
 class MindMapNode extends AbstractNode implements PropertyChangeListener{
-    static int i = 0;
-    
+    /**
+     * The wrapped node.
+     */
     protected Node node;
-    protected Document document;
+
+    /**
+     * This nodes lookup.
+     */
     protected Lookup lookup;
 
-    public MindMapNode(Document document, Node node, Lookup lookup) {
-        super(new NodeChildren(document, node, lookup));
-        init(document, node, lookup);
-    }
-
-    public MindMapNode(Document document, NodeChildren children, Node node, Lookup lookup) {
+    /**
+     * Create a new NetBeans Node wrapping the MindMap Node.
+     * @param children The children of this node.
+     * @param node The node to wrap.
+     * @param lookup The lookup to use.
+     */
+    public MindMapNode(NodeChildren children, Node node, Lookup lookup) {
         super(children);
-        init(document, node, lookup);
-        getCookieSet().add(children.getIndex());
-    }
 
-    protected void init(Document document, Node node, Lookup lookup) {
         this.node = node;
         this.node.addPropertyChangeListener(this);
-        this.document = document;
-        this.document.addPropertyChangeListener(this);
+        this.node.getDocument().addPropertyChangeListener(this);
+
         this.lookup = lookup;
-
-        getCookieSet().add(new AddChildCookie() {
-
-            public void addChild() {
-                MindMapNode.this.document.createAddChildAction(MindMapNode.this.node);
-            }
-
-            public void addChild(Node child) {
-                MindMapNode.this.document.createAppendChildAction(MindMapNode.this.node, child);
-            }
-        });
-
-        getCookieSet().add(new RemoveChildCookie() {
-
-            public void removeAsChild() {
-                try {
-                    MindMapNode.this.destroy();
-                } catch(IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
 
         getCookieSet().add(new NodeCookie() {
 
@@ -98,16 +70,24 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener{
 
         });
 
-        if(document.isModified())
-            getCookieSet().add(lookup.lookup(SaveCookie.class));
+        getCookieSet().add(children.getIndex());
+
+        if(node.getDocument().isModified())
+                getCookieSet().add(lookup.lookup(SaveCookie.class));
+    }
+
+    /**
+     * Add a child to the wrapped MindMap Node.
+     * @param child
+     */
+    private void addChild(Node child) {
+        node.getDocument().createAppendChildAction(MindMapNode.this.node, child);
     }
 
     @Override
     public NewType[] getNewTypes() {
         return new NewType[] { new NewNodeType() };
     }
-
-
 
     @Override
     public String getDisplayName() {
@@ -124,7 +104,7 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener{
         Lookup lkp = Lookups.forPath("ContextActions/MindMapNode");
         actionList.addAll(lkp.lookupAll(Action.class));
 
-        if(!(getParentNode() instanceof MindMapperFileDataNode)) {
+        if(!(getParentNode() instanceof MindMapDocument)) {
             actionList.add(SystemAction.get(CutAction.class));
             actionList.add(SystemAction.get(DeleteAction.class));
         }
@@ -144,15 +124,16 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener{
     public void destroy() throws IOException {
         Node parent = getParentNode().getLookup().lookup(NodeCookie.class).getNode();
         if(parent != null)
-            document.createRemoveChildAction(parent, node);
-        
+            node.getDocument().createRemoveChildAction(parent, node);
     }
     
     
-   
+    /**
+     * Listen to changes in the document and the wrapped node.
+     * @param evt The event to react on.
+     */
     public void propertyChange(PropertyChangeEvent evt) {
-        if(evt.getPropertyName().equals(Node.PROPERTY_NAME) ||
-                evt.getPropertyName().equals(Node.PROPERTY_ALL)) {
+        if(evt.getPropertyName().equals(Node.PROPERTY_NAME)) {
             setDisplayName(node.getName());
         }
         if(evt.getPropertyName().equals(Document.PROPERTY_MODIFIED)) {
@@ -190,7 +171,7 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener{
 
     @Override
     public void setName(String s) {
-        document.createRenameAction(node, s);
+        node.getDocument().createRenameAction(node, s);
     }
 
     @Override
@@ -202,7 +183,7 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener{
                 return new PasteType() {
                     @Override
                     public Transferable paste() throws IOException {
-                        getLookup().lookup(AddChildCookie.class).addChild(transferedNode.copy());
+                        addChild(transferedNode.copy());
                         return null;
                     }
                 };
@@ -229,7 +210,7 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener{
 
     @Override
     public boolean canCut() {
-        return !(getParentNode() instanceof MindMapperFileDataNode);
+        return !(getParentNode() instanceof MindMapDocument);
     }
 
     @Override
@@ -239,7 +220,7 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener{
 
     @Override
     public boolean canDestroy() {
-        return !(getParentNode() instanceof MindMapperFileDataNode);
+        return !(getParentNode() instanceof MindMapDocument);
     }
 
     @Override
@@ -247,11 +228,14 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener{
         return true;
     }
 
+    /**
+     * Support creation of child nodes of the same type.
+     */
     class NewNodeType extends NewType{
 
         @Override
         public void create() throws IOException {
-            MindMapNode.this.document.createAddChildAction(MindMapNode.this.node);
+            node.getDocument().createAddChildAction(MindMapNode.this.node);
         }
 
         @Override

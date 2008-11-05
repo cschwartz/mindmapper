@@ -20,7 +20,6 @@ public class AddChildAction extends AbstractUndoableAction{
         super(document);
         this.parent = parent;
         newChild = new NodeImpl();
-        newChild.setDocument(document);
         newChild.setName("New Node");
         parent.addChild(newChild);
 

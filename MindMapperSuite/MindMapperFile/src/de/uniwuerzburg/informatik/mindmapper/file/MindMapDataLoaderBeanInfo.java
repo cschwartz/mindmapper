@@ -10,9 +10,12 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.SimpleBeanInfo;
 import org.openide.loaders.UniFileLoader;
-import org.openide.util.Utilities;
 
-public class MindMapperFileDataLoaderBeanInfo extends SimpleBeanInfo {
+/**
+ * Generated
+ * @author Christian "blair" Schwartz
+ */
+public class MindMapDataLoaderBeanInfo extends SimpleBeanInfo {
 
     @Override
     public BeanInfo[] getAdditionalBeanInfo() {

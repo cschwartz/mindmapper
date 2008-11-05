@@ -4,7 +4,7 @@ OpenIDE-Module-Layer: de/uniwuerzburg/informatik/mindmapper/file/layer.xml
 OpenIDE-Module-Localizing-Bundle: de/uniwuerzburg/informatik/mindmapper/file/Bundle.properties
 OpenIDE-Module-Specification-Version: 1.0
 
-Name: de/uniwuerzburg/informatik/mindmapper/file/MindMapperFileDataLoader.class
+Name: de/uniwuerzburg/informatik/mindmapper/file/MindMapDataLoader.class
 Install-Before: org.openide.loaders.XMLDataObject, org.netbeans.modules.xml.XMLDataObject
 OpenIDE-Module-Class: Loader
 

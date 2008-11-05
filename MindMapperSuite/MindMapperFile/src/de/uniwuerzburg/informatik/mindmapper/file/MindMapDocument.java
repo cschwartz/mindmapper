@@ -1,35 +1,50 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.uniwuerzburg.informatik.mindmapper.file;
 
 import de.uniwuerzburg.informatik.mindmapper.api.Document;
-import de.uniwuerzburg.informatik.mindmapper.editorapi.DocumentCookie;
-import de.uniwuerzburg.informatik.mindmapper.file.MindMapperFileDataObject.SaveSupport;
+import de.uniwuerzburg.informatik.mindmapper.file.cookies.DocumentCookie;
+import de.uniwuerzburg.informatik.mindmapper.file.MindMapDataObject.SaveSupport;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import org.openide.cookies.SaveCookie;
-import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataNode;
-import org.openide.loaders.DataObject;
-import org.openide.loaders.SaveAsCapable;
 import org.openide.nodes.PropertySupport;
 import org.openide.nodes.Sheet;
 import org.openide.util.Lookup;
 
-public class MindMapperFileDataNode extends DataNode implements PropertyChangeListener{
+/**
+ * A NetBeans Node representing the MindMap Document.
+ * @author Christian "blair" Schwartz
+ */
+public class MindMapDocument extends DataNode implements PropertyChangeListener{
+    /**
+     * The path to the Document Nodes Icon.
+     */
     private static final String IMAGE_ICON_BASE = "SET/PATH/TO/ICON/HERE";
-    public static final String PROPERTY_DOCUMENT_CHANGED = "mindmapperfiledatanode_documentchanged";
+
+    /**
+     * The wrapped document.
+     */
     protected Document document;
 
-    protected Lookup documentLookup;
+    /**
+     * This nodes lookup.
+     */
+    protected Lookup lookup;
 
+    /**
+     * The save cookie for this document, it will be placed in the lookup if and
+     * only if the documents modified property is true.
+     */
     protected SaveCookie saveCookie;
 
-    MindMapperFileDataNode(MindMapperFileDataObject obj, Lookup lookup) {
+    /**
+     * Create a new MindMapDocument wrapping the document contained in the
+     * MindMapDataObject and using the given lookup.
+     * @param obj A MindMapDataObject containing a DocumentCookie.
+     * @param lookup The lookup to assign to this NetBeans Node.
+     */
+    MindMapDocument(MindMapDataObject obj, Lookup lookup) {
         super(obj, new DocumentChildren(obj.lookup.lookup(DocumentCookie.class).getDocument(), lookup));
         this.document = lookup.lookup(DocumentCookie.class).getDocument();
         this.document.addPropertyChangeListener(this);
@@ -37,7 +52,7 @@ public class MindMapperFileDataNode extends DataNode implements PropertyChangeLi
         saveCookie = obj.getLookup().lookup(SaveSupport.class);
 
         getCookieSet().add(lookup.lookup(DocumentCookie.class));
-        documentLookup = lookup;
+        this.lookup = lookup;
         //        setIconBaseWithExtension(IMAGE_ICON_BASE);
     }
 
@@ -64,42 +79,23 @@ public class MindMapperFileDataNode extends DataNode implements PropertyChangeLi
         return sheet;
     }
 
-//    @Override
-//    protected Sheet createSheet() {
-//        Sheet s = super.createSheet();
-//        Sheet.Set ss = s.get(Sheet.PROPERTIES);
-//        if (ss == null) {
-//            ss = Sheet.createPropertiesSet();
-//            s.put(ss);
-//        }
-//        // TODO add some relevant properties: ss.put(...)
-//        return s;
-//    }
-    
-    public Document getDocument() {
-        return document;
-    }
-
-    @Override
-    public boolean canCut() {
-        return true;
-    }
-
+    /**
+     * Gets fired if the document changes.
+     * @param evt The change event.
+     */
     public void propertyChange(PropertyChangeEvent evt) {
-        if(evt.getPropertyName().equals(Document.PROPERTY_ROOT) ||
-                evt.getPropertyName().equals(Document.PROPERTY_ALL)) {
-            setChildren(new DocumentChildren(document, documentLookup));
+        if(evt.getPropertyName().equals(Document.PROPERTY_ROOT)) {
+            setChildren(new DocumentChildren(document, lookup));
 
         }
-        if(evt.getPropertyName().equals(Document.PROPERTY_NAME) ||
-                evt.getPropertyName().equals(Document.PROPERTY_ALL)) {
+        if(evt.getPropertyName().equals(Document.PROPERTY_NAME)) {
             setDisplayName(document.getName());
         }
 
         if(evt.getPropertyName().equals(Document.PROPERTY_MODIFIED)) {
             if(evt.getNewValue().equals(Boolean.TRUE)) {
                 getDataObject().setModified(true);
-                getCookieSet().assign(SaveCookie.class, documentLookup.lookup(SaveCookie.class));
+                getCookieSet().assign(SaveCookie.class, lookup.lookup(SaveCookie.class));
             } else {
                 getDataObject().setModified(false);
                 getCookieSet().assign(SaveCookie.class);

@@ -1,14 +1,6 @@
-/*
- * MindMapEditor.java
- *
- * Created on 11. Oktober 2008, 19:25
- */
-
 package de.uniwuerzburg.informatik.mindmapper.editor;
 
 import de.uniwuerzburg.informatik.mindmapper.editorapi.DocumentCookie;
-import de.uniwuerzburg.informatik.mindmapper.editorapi.DocumentNodeCookie;
-import de.uniwuerzburg.informatik.mindmapper.editorapi.UndoRedoManagerCookie;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -30,17 +22,37 @@ import org.openide.util.lookup.ProxyLookup;
 import org.openide.windows.CloneableTopComponent;
 
 /**
- *
- * @author  blair
+ * An editor for MindMaps using BeanTreeView as the viewer.
+ * @author Christian "blair" Schwartz
  */
 public class MindMapEditor extends CloneableTopComponent implements ExplorerManager.Provider{
 
+    /**
+     * The shared UndoRedo.Manager of the document.
+     */
     protected UndoRedo.Manager undoRedoManager;
+
+    /**
+     * The explorermanager used by the BeanTreeView to display the nodes
+     * representing the MindMap.
+     */
     protected ExplorerManager explorerManager;
+
+    /**
+     * The Node describing the MindMap Document.
+     */
     protected Node documentNode;
 
+    /**
+     * The DataObject containing the MindMap Document.
+     */
     protected MultiDataObject dataObject;
 
+    /**
+     * Creates a new MindMap Editor without a document. Call
+     * initFrom(dataObject) to complete initialization.
+     * Used by the externalize system to restore closed editors.
+     */
     public MindMapEditor() {
         initComponents();
         explorerManager = new ExplorerManager();
@@ -51,28 +63,37 @@ public class MindMapEditor extends CloneableTopComponent implements ExplorerMana
         map.put(DefaultEditorKit.pasteAction, ExplorerUtils.actionPaste(explorerManager));
         map.put("delete", ExplorerUtils.actionDelete(explorerManager, true));
     }
-    /** Creates new form MindMapEditor */
+
+    /**
+     * Creates new form MindMapEditor displaying the MindMap contained in the
+     * dataObject.
+     * @param dataObject A dataObject containing a DocumentNodeCookie.
+     */
     public MindMapEditor(MultiDataObject dataObject) {
         this();
         this.dataObject = dataObject;
         initFrom(dataObject);
     }
-    
+
     @Override
     protected CloneableTopComponent createClonedObject() {
         MindMapEditor tc = new MindMapEditor(dataObject);
-        tc.setDisplayName(documentNode.getName());
         return tc;
     }
 
+    /**
+     * Init this editor from the given dataObject.
+     * @param dataObject The dataObject to init from.
+     */
     protected void initFrom(MultiDataObject dataObject) {
-        documentNode = dataObject.getLookup().lookup(DocumentNodeCookie.class).getDocumentNode();
+        documentNode = dataObject.getLookup().lookup(DocumentCookie.class).getDocumentNode();
 
-        setName(documentNode.getLookup().lookup(DocumentCookie.class).getDocument().getName());
         explorerManager.setRootContext(documentNode);
 
         associateLookup(new ProxyLookup(new Lookup[] {ExplorerUtils.createLookup(explorerManager, getActionMap())}));
-        undoRedoManager = documentNode.getLookup().lookup(UndoRedoManagerCookie.class).getUndoRedoManager();
+        undoRedoManager = dataObject.getLookup().lookup(DocumentCookie.class).getUndoRedoManager();
+
+        setDisplayName(documentNode.getName());
     }
 
     
@@ -127,13 +148,17 @@ public class MindMapEditor extends CloneableTopComponent implements ExplorerMana
         super.readExternal(arg0);
 
         dataObject = (MultiDataObject)arg0.readObject();
-        dataObject.getCookie(DocumentNodeCookie.class).open();
+        dataObject.getCookie(DocumentCookie.class).getDocumentNode();
         initFrom(dataObject);
     }
 
+    /**
+     * Check if the editor can be closed or if changes have to be saved.
+     * @return True, if the editor should be closed, False if else.
+     */
     @Override
     public boolean canClose() {
-        boolean isModified = documentNode.getCookie(DocumentCookie.class).getDocument().isModified();
+        boolean isModified = dataObject.getCookie(DocumentCookie.class).isModified();
         Enumeration<CloneableTopComponent> components = getReference().getComponents();
         int numComponents = 0;
         while(components.hasMoreElements()) {
@@ -141,6 +166,9 @@ public class MindMapEditor extends CloneableTopComponent implements ExplorerMana
             numComponents++;
         }
 
+        //If more than one cloned version of the editor exists, the editor
+        //can be closed.
+        //If the document is not modified it can be closed.
         if(numComponents > 1 || !isModified)
             return true;
         else {
@@ -150,6 +178,7 @@ public class MindMapEditor extends CloneableTopComponent implements ExplorerMana
             Object returnValue = DialogDisplayer.getDefault().notify(unsavedChangedDialog);
 
             if(returnValue == NotifyDescriptor.YES_OPTION) {
+                //save the document and quit.
                 try {
                 documentNode.getCookie(SaveCookie.class).save();
                 dataObject.getCookie(CloseCookie.class).close();
@@ -161,9 +190,11 @@ public class MindMapEditor extends CloneableTopComponent implements ExplorerMana
                     return false;
                 }
             } else if(returnValue.equals(NotifyDescriptor.NO_OPTION)) {
+                //don't save the document and quit.
                 dataObject.getCookie(CloseCookie.class).close();
                 return true;
             } else {
+                //cancel the closing.
                 return false;
             }
 
