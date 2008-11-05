@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package de.uniwuerzburg.informatik.mindmapper.spi.actions;
 
 import de.uniwuerzburg.informatik.mindmapper.api.Node;
@@ -11,14 +6,26 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
 /**
- *
- * @author blair
+ * An action to remove a child from a MindMap Node.
+ * @author Christian "blair" Schwartz
  */
 public class RemoveChildAction extends AbstractUndoableAction{
-
+    /**
+     * The parent to remove the node from.
+     */
     protected Node parent;
+
+    /**
+     * The child to remove from the parent.
+     */
     protected Node childToRemove;
-    
+
+    /**
+     * Create and execute an action to remove a child from a parent MindMap Node.
+     * @param document The document owning the parent.
+     * @param parent The parent to remove a child from.
+     * @param childToRemove The child to remove the parent from.
+     */
     public RemoveChildAction(DocumentImpl document, Node parent, Node childToRemove) {
         super(document);
         this.parent = parent;

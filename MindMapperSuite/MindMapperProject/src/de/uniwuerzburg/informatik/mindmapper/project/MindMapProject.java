@@ -1,6 +1,7 @@
 package de.uniwuerzburg.informatik.mindmapper.project;
 
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.util.Properties;
 import javax.swing.Icon;
@@ -10,6 +11,8 @@ import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.spi.project.ActionProvider;
 import org.netbeans.spi.project.ProjectState;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataFolder;
 import org.openide.nodes.FilterNode;
@@ -21,27 +24,58 @@ import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ProxyLookup;
 
 /**
- *
- * @author blair
+ * The MindMap Project class, based on the NetBeans Platform PovRay Tutorial
+ * @author Christian "blair" Schwartz
  */
 class MindMapProject implements Project{
-
+    /**
+     * The name of the subdir which will contain all mindmaps.
+     */
     public final static String mindmapDirectory = "mindmaps";
-    
+
+    /**
+     * The fileobject for the project directory.
+     */
     protected FileObject projectDirectory;
+
+    /**
+     * The projects current state.
+     */
     protected ProjectState state;
+
+    /**
+     * The projects lookup.
+     */
     protected Lookup lookup;
+
+    /**
+     * The logical view to use.
+     */
     protected MindMapLogicalView logicalView = new MindMapLogicalView(this);
-    
+
+    /**
+     * Create a new project for the given directory with the given state.
+     * @param projectDirectory The project directory.
+     * @param state The state of the directory.
+     */
     public MindMapProject(FileObject projectDirectory, ProjectState state) {
         this.projectDirectory = projectDirectory;
         this.state = state;
     }
 
+    /**
+     * The FileObject for the project directory.
+     * @return The FileObject for the project directory.
+     */
     public FileObject getProjectDirectory() {
         return projectDirectory;
     }
 
+    /**
+     * Return the directory to save the mindmap in.
+     * @param create Whether to create the directory if it doesn't exist.
+     * @return The FileObject for the mindmap directory.
+     */
     public FileObject getMindMapDirectory(boolean create) {
         FileObject directory = projectDirectory.getFileObject(mindmapDirectory);
         
@@ -49,13 +83,18 @@ class MindMapProject implements Project{
             try {
                 directory = directory.createFolder(mindmapDirectory);
             } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
+                NotifyDescriptor n = new NotifyDescriptor.Exception(ex);
+                DialogDisplayer.getDefault().notify(n);
             }
         }
         
         return directory;
     }
-    
+
+    /**
+     * Get this projects lookup.
+     * @return The projects lookup.
+     */
     public Lookup getLookup() {
         if(lookup == null) {
             lookup = Lookups.fixed(new Object[] {this,
@@ -68,7 +107,11 @@ class MindMapProject implements Project{
         }
         return lookup;
     }
-    
+
+    /**
+     * Load the projects properties.
+     * @return The projects properties.
+     */
     protected Properties loadProperties() {
         FileObject propertiesFile = projectDirectory.getFileObject(MindMapProjectFactory.projectDirectory + "/" + MindMapProjectFactory.projectFile);
         Properties properties = new NotifyProperties(state);
@@ -76,13 +119,17 @@ class MindMapProject implements Project{
             try {
                 properties.load(propertiesFile.getInputStream());
             } catch (IOException e){
-                e.printStackTrace();
+                NotifyDescriptor n = new NotifyDescriptor.Exception(e);
+                DialogDisplayer.getDefault().notify(n);
             }
         }
         
         return properties;
     }
 
+    /**
+     * Provide the actions for this project. (None at the moment)
+     */
     protected final class ActionProviderImpl implements ActionProvider {
 
         public String[] getSupportedActions() {
@@ -97,37 +144,81 @@ class MindMapProject implements Project{
             return false;
         }
     };
-    
+
+    /**
+     * Provide information about the project.
+     */
     protected final class ProjectInformationImpl implements ProjectInformation {
 
+        /**
+         * Property Change Support for the project informations.
+         */
+        PropertyChangeSupport support = new PropertyChangeSupport(this);
+
+        /**
+         * The projects name is the name of its hosting directory.
+         * @return The projects name.
+         */
         public String getName() {
             return projectDirectory.getName();
         }
 
+        /**
+         * The display name is the projects name.
+         * @return The display name.
+         */
         public String getDisplayName() {
             return getName();
         }
 
+        /**
+         * Return the icon to display.
+         * @return The projects icon.
+         */
         public Icon getIcon() {
             return new ImageIcon(Utilities.loadImage("de/uniwuerzburg/informatik/mindmapper/project/lightbulb.png"));
         }
 
+        /**
+         * Return the project itself.
+         * @return The project.
+         */
         public Project getProject() {
             return MindMapProject.this;
         }
 
-        public void addPropertyChangeListener(PropertyChangeListener arg0) {
-            //NOP
+        /**
+         * Add a property change listener.
+         * @param listener The listener to add.
+         */
+        public void addPropertyChangeListener(PropertyChangeListener listener) {
+            support.addPropertyChangeListener(listener);
         }
 
-        public void removePropertyChangeListener(PropertyChangeListener arg0) {
-            //NOP
+        /**
+         * Remove a property change listener.
+         * @param listener The listener to remove.
+         */
+        public void removePropertyChangeListener(PropertyChangeListener listener) {
+            support.removePropertyChangeListener(listener);
         }
     }
-     
+
+    /**
+     * Properties which will mark the project state as modified if the
+     * properties change.
+     */
     protected final class NotifyProperties extends Properties {
+        /**
+         * The project state to notify.
+         */
         protected final ProjectState state;
 
+        /**
+         * Create a properties instance which will notify the project state on
+         * changes.
+         * @param state The project state to notify.
+         */
         public NotifyProperties(ProjectState state) {
             this.state = state;
         }
@@ -145,15 +236,25 @@ class MindMapProject implements Project{
             return result;
         }
     }
-    
+
+    /**
+     * The logical view for this project.
+     */
     protected final class MindMapLogicalView implements LogicalViewProvider {
 
+        /**
+         * The project displayed in this view.
+         */
         protected MindMapProject project;
-        
+
+        /**
+         * Create a view for this project.
+         * @param project The project to create a view for.
+         */
         public MindMapLogicalView(MindMapProject project) {
             this.project = project;
         }
-        
+
         public Node createLogicalView() {
             FileObject mindMapsFolder = getMindMapDirectory(true);
             DataFolder mindMaps = DataFolder.findFolder(mindMapsFolder);
@@ -164,11 +265,21 @@ class MindMapProject implements Project{
         public Node findPath(Node root, Object target) {
             return null;
         }
-        
+
+        /**
+         * The nodes used to display mindmap documents in the project explorer.
+         */
         private class MindMapsNode extends FilterNode {
-            
+            /**
+             * The project which includes this mindmap document.
+             */
             protected MindMapProject project;
-            
+
+            /**
+             * Create a new node delegating to the given node for this project.
+             * @param node The node to delegate to.
+             * @param project The project owning the node.
+             */
             public MindMapsNode(Node node, MindMapProject project) {
                 super(node, new FilterNode.Children(node),
                         new ProxyLookup(new Lookup[] {Lookups.singleton(project), node.getLookup()}));
@@ -180,8 +291,6 @@ class MindMapProject implements Project{
             public String getDisplayName() {
                 return project.getProjectDirectory().getName();
             }
-            
-            
         }
     }
 }

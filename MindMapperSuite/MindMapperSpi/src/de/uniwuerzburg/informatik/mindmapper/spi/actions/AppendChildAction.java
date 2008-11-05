@@ -1,25 +1,32 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package de.uniwuerzburg.informatik.mindmapper.spi.actions;
 
 import de.uniwuerzburg.informatik.mindmapper.spi.*;
 import de.uniwuerzburg.informatik.mindmapper.api.Node;
-import de.uniwuerzburg.informatik.mindmapper.spi.actions.AbstractUndoableAction;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
 /**
- *
- * @author blair
+ * An action which appends a given node to a given parent.
+ * @author Christian "blair" Schwartz
  */
 public class AppendChildAction extends AbstractUndoableAction{
-
+    /**
+     * The parent to add the child to.
+     */
     protected Node parent;
+
+    /**
+     * The child to add to the parent.
+     */
     protected Node child;
 
+    /**
+     * Create and execute an action which appends the child to the parent MindMap
+     * Node
+     * @param document The document owning the parent
+     * @param parent The parent to add the child to.
+     * @param child The child to add to the parent.
+     */
     public AppendChildAction(DocumentImpl document, Node parent, Node child) {
         super(document);
         this.parent = parent;

@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package de.uniwuerzburg.informatik.mindmapper.spi.actions;
 
 import de.uniwuerzburg.informatik.mindmapper.api.Node;
@@ -12,15 +7,32 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
 /**
- *
- * @author blair
+ * Change the order of a MindMap Node according to a permutation.
+ * @author Christian "blair" Schwartz
  */
 public class ReorderAction extends AbstractUndoableAction{
 
+    /**
+     * The permutation to restore to in case of an undo.
+     */
     protected int[] restorePermutation;
+
+    /**
+     * The permutation to change to in case of an redo.
+     */
     protected int[] permutation;
+
+    /**
+     * The node whose chilren should be reordered.
+     */
     protected Node parent;
-    
+
+    /**
+     * Create and execute an action to reorder the children of.
+     * @param document The document owning the parent.
+     * @param parent The parent whose children should be reordered.
+     * @param permutation The new order of the children.
+     */
     public ReorderAction(DocumentImpl document, Node parent, int[] permutation) {
         super(document);
         this.permutation = permutation;

@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package de.uniwuerzburg.informatik.mindmapper.spi;
 
 import de.uniwuerzburg.informatik.mindmapper.api.Document;
@@ -23,17 +18,43 @@ import org.openide.awt.UndoRedo;
 import org.openide.awt.UndoRedo.Manager;
 
 /**
- *
- * @author blair
+ * An implementation of a MindMap Document.
+ * @author Christian "blair" Schwartz
  */
 public class DocumentImpl implements Document{
+    /**
+     * Property change support for all document properties.
+     */
     private PropertyChangeSupport support;
+
+    /**
+     * The name of this document.
+     */
     protected String name;
+
+    /**
+     * The immutable root node of this document.
+     */
     protected Node rootNode;
+
+    /**
+     * A list of all links in this documents.
+     */
     protected List<Link> links;
+
+    /**
+     * The UndoRedo.Manager for all editors showing this document.
+     */
     protected UndoRedo.Manager undoRedoManager;
+
+    /**
+     * True, if the document has been modified since the last save, else False.
+     */
     protected boolean modified;
 
+    /**
+     * Create a new Document instance.
+     */
     DocumentImpl() {
         support = new PropertyChangeSupport(this);
         NodeImpl node = new NodeImpl();

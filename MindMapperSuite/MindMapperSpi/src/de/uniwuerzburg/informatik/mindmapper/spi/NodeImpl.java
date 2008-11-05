@@ -1,35 +1,45 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package de.uniwuerzburg.informatik.mindmapper.spi;
 
 import de.uniwuerzburg.informatik.mindmapper.api.Document;
 import de.uniwuerzburg.informatik.mindmapper.api.Node;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
- *
- * @author blair
+ * An implementation of the Node interface.
+ * @author Christian "blair" Schwartz
  */
 public class NodeImpl implements Node{
-
-    private static final String PROPERTY_INDEX = "nodeimpl_index";
+    /**
+     * Property change support for all node properties.
+     */
     protected PropertyChangeSupport support;
-    protected String name;
-    protected List<Node> children;
-    Document document;
 
+    /**
+     * The nodes name property.
+     */
+    protected String name;
+
+    /**
+     * The nodes children.
+     */
+    protected List<Node> children;
+
+    /**
+     * The document owning this node.
+     */
+    protected Document document;
+
+    /**
+     * Create a new node.
+     */
     public NodeImpl() {
         support = new PropertyChangeSupport(this);
         children = new LinkedList<Node>();
-        name = "";        
+        name = "New node";
     }
 
     public String getName() {

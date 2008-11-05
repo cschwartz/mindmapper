@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.uniwuerzburg.informatik.mindmapper.spi.actions;
 
 import de.uniwuerzburg.informatik.mindmapper.spi.NodeImpl;
@@ -10,17 +6,32 @@ import de.uniwuerzburg.informatik.mindmapper.spi.DocumentImpl;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
-
+/**
+ * An action to add a new child to a node.
+ * @author Christian "blair" Schwartz
+ */
 public class AddChildAction extends AbstractUndoableAction{
 
+    /**
+     * The parent to add the child to.
+     */
     protected Node parent;
+
+    /**
+     * The new child of the parent.
+     */
     protected NodeImpl newChild;
-    
+
+    /**
+     * Create and execute an action which adds a new MindMap node to the parent
+     * node in the document.
+     * @param document The document hosting the node.
+     * @param parent The parent to add a node to.
+     */
     public AddChildAction(DocumentImpl document, Node parent) {
         super(document);
         this.parent = parent;
         newChild = new NodeImpl();
-        newChild.setName("New Node");
         parent.addChild(newChild);
 
         postInit();
@@ -52,6 +63,4 @@ public class AddChildAction extends AbstractUndoableAction{
     public String getRedoPresentationName() {
         return "Add Child";
     }
-
 }
-

@@ -1,28 +1,38 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package de.uniwuerzburg.informatik.mindmapper.spi;
 
 import de.uniwuerzburg.informatik.mindmapper.api.Link;
 import de.uniwuerzburg.informatik.mindmapper.api.Node;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.util.Hashtable;
-import javax.swing.undo.StateEditable;
 
 /**
- *
- * @author blair
+ * A implementation of the link interface.
+ * @author Christian "blair" Schwartz
  */
 public class LinkImpl implements Link{
-
+    /**
+     * Property change support for all link properties.
+     */
     protected PropertyChangeSupport support;
+
+    /**
+     * The links name.
+     */
     protected String name;
+
+    /**
+     * The links source node.
+     */
     protected Node source;
+
+    /**
+     * The links target node.
+     */
     protected Node target;
-    
+
+    /**
+     * Create a new Link instance.
+     */
     LinkImpl() {
         support = new PropertyChangeSupport(this);
     }
