@@ -65,13 +65,11 @@ public class NodeChildren extends Children.Keys<Node> implements PropertyChangeL
      * @param evt The event to react on.
      */
     public void propertyChange(PropertyChangeEvent evt) {
-        if(evt.getPropertyName().equals(Node.PROPERTY_CHILDREN)) {
-            Node keys[] = new Node[node.getChildren().length];
-            for(int i = 0; i < node.getChildren().length;i++) {
-                keys[i] = node.getChildren(i);
-            }
-            setKeys(keys);
+        Node keys[] = new Node[node.getChildren().length];
+        for(int i = 0; i < node.getChildren().length;i++) {
+            keys[i] = node.getChildren(i);
         }
+        setKeys(keys);
     }
 
     /**
