@@ -2,6 +2,7 @@ package de.uniwuerzburg.informatik.mindmapper.spi.actions;
 
 import de.uniwuerzburg.informatik.mindmapper.api.Node;
 import de.uniwuerzburg.informatik.mindmapper.spi.DocumentImpl;
+import de.uniwuerzburg.informatik.mindmapper.spi.NodeImpl;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
@@ -21,6 +22,11 @@ public class RemoveChildAction extends AbstractUndoableAction{
     protected Node childToRemove;
 
     /**
+     * The index of the node before deletiion.
+     */
+    protected int oldIndex;
+
+    /**
      * Create and execute an action to remove a child from a parent MindMap Node.
      * @param document The document owning the parent.
      * @param parent The parent to remove a child from.
@@ -30,6 +36,11 @@ public class RemoveChildAction extends AbstractUndoableAction{
         super(document);
         this.parent = parent;
         this.childToRemove = childToRemove;
+        for(int i = 0; i < parent.getChildren().length; i++) {
+            if(parent.getChildren()[i] == childToRemove) {
+                oldIndex = i;
+            }
+        }
         parent.removeChild(childToRemove);
 
         postInit();
@@ -38,12 +49,19 @@ public class RemoveChildAction extends AbstractUndoableAction{
     @Override
     public void undo() throws CannotUndoException {
         super.undo();
-        parent.addChild(childToRemove);
+        ((NodeImpl)parent).addChild((NodeImpl)childToRemove, oldIndex);
     }
 
     @Override
     public void redo() throws CannotRedoException {
         super.redo();
+
+        for(int i = 0; i < parent.getChildren().length; i++) {
+            if(parent.getChildren()[i] == childToRemove) {
+                oldIndex = i;
+            }
+        }
+
         parent.removeChild(childToRemove);
     }
 

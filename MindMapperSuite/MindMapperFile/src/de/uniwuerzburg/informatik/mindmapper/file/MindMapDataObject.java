@@ -1,4 +1,4 @@
-package de.uniwuerzburg.informatik.mindmapper.file;
+    package de.uniwuerzburg.informatik.mindmapper.file;
 
 import de.uniwuerzburg.informatik.mindmapper.api.Document;
 import de.uniwuerzburg.informatik.mindmapper.api.MindMapFactory;

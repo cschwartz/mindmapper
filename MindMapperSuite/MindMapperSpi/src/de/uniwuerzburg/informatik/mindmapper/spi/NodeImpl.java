@@ -66,6 +66,17 @@ public class NodeImpl implements Node{
         support.fireIndexedPropertyChange(PROPERTY_CHILDREN, children.size()-1, null, node);
     }
 
+    /**
+     * Add a node as a child at the given index.
+     * @param node The child to add.
+     * @param index The index to add the child at.
+     */
+    public void addChild(NodeImpl node, int index) {
+        children.add(index, node);
+        node.setDocument(document);
+        support.fireIndexedPropertyChange(PROPERTY_CHILDREN, index, null, node);
+    }
+
     public void removeChild(Node node) throws NoSuchElementException{
         int index = children.indexOf(node);
         if(index == -1)
