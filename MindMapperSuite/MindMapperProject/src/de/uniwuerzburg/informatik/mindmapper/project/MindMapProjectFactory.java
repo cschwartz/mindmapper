@@ -9,6 +9,7 @@ import org.netbeans.spi.project.ProjectFactory;
 import org.netbeans.spi.project.ProjectState;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.NbBundle;
 
 /**
  * A factory for creating MindMap Projects.
@@ -37,7 +38,8 @@ public class MindMapProjectFactory implements ProjectFactory{
     public void saveProject(Project project) throws IOException, ClassCastException {
         FileObject projectDir = project.getProjectDirectory();
         if(projectDir.getFileObject(projectDirectory) == null) {
-            throw new IOException("Project directory " + project.getProjectDirectory() + "deleted, can not save project.");
+
+            throw new IOException(NbBundle.getMessage(MindMapProjectFactory.class, "projectdirectory") + project.getProjectDirectory() + NbBundle.getMessage(MindMapProject.class, "projectSaveError"));
         }
         
         String propertiesPath = projectDirectory + "/" + projectFile;
