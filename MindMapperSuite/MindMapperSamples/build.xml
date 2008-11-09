@@ -9,9 +9,9 @@
     <target name="package-samples">
         <delete file="${basedir}/src/de/uniwuerzburg/informatik/mindmapper/samples/EmptyMindMapTemplateProject.zip"/>
         <delete file="${basedir}/src/de/uniwuerzburg/informatik/mindmapper/samples/SampleMindMapTemplateProject.zip"/>
-        <zip compress="9" basedir="src/de/uniwuerzburg/informatik/mindmapper/samples/templates/EmptyMindMapProject/"
+        <zip compress="9" basedir="src/de/uniwuerzburg/informatik/mindmapper/samples/templates/EmptyMindmapProject/"
          zipfile="${basedir}/src/de/uniwuerzburg/informatik/mindmapper/samples/EmptyMindMapTemplateProject.zip"/>
-        <zip compress="9" basedir="src/de/uniwuerzburg/informatik/mindmapper/samples/templates/SampleMindMapProject/"
+        <zip compress="9" basedir="src/de/uniwuerzburg/informatik/mindmapper/samples/templates/SampleMindmapProject/"
          zipfile="${basedir}/src/de/uniwuerzburg/informatik/mindmapper/samples/SampleMindMapTemplateProject.zip"/>
-    </target>
+   </target>
 </project>
