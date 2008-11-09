@@ -18,6 +18,7 @@ import org.openide.explorer.view.BeanTreeView;
 import org.openide.loaders.MultiDataObject;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
+import org.openide.util.NbBundle;
 import org.openide.util.lookup.ProxyLookup;
 import org.openide.windows.CloneableTopComponent;
 
@@ -61,7 +62,8 @@ public class MindMapEditor extends CloneableTopComponent implements ExplorerMana
         map.put(DefaultEditorKit.copyAction, ExplorerUtils.actionCopy(explorerManager));
         map.put(DefaultEditorKit.cutAction, ExplorerUtils.actionCut(explorerManager));
         map.put(DefaultEditorKit.pasteAction, ExplorerUtils.actionPaste(explorerManager));
-        map.put("delete", ExplorerUtils.actionDelete(explorerManager, true));
+
+        map.put(NbBundle.getMessage(MindMapEditor.class, "delete Action"), ExplorerUtils.actionDelete(explorerManager, true));
     }
 
     /**
@@ -172,9 +174,9 @@ public class MindMapEditor extends CloneableTopComponent implements ExplorerMana
         if(numComponents > 1 || !isModified)
             return true;
         else {
-            NotifyDescriptor unsavedChangedDialog = new NotifyDescriptor.Confirmation(
-                    "Do you want to save before quitting",
-                    "Unsaved changes");
+            NotifyDescriptor unsavedChangedDialog = new NotifyDescriptor.Confirmation(NbBundle.getMessage(MindMapEditor.class, "QuitSaveMessage")
+                    ,NbBundle.getMessage(MindMapEditor.class, "QuitSaveTitel")
+                    );
             Object returnValue = DialogDisplayer.getDefault().notify(unsavedChangedDialog);
 
             if(returnValue == NotifyDescriptor.YES_OPTION) {
