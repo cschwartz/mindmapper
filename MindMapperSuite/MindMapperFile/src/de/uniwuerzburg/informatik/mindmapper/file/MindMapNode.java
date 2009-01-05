@@ -23,6 +23,8 @@ import org.openide.actions.RenameAction;
 import org.openide.actions.ReorderAction;
 import org.openide.cookies.SaveCookie;
 import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
+import org.openide.nodes.Index;
 import org.openide.nodes.NodeTransfer;
 import org.openide.nodes.PropertySupport;
 import org.openide.nodes.Sheet;
@@ -53,7 +55,7 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener{
      * @param node The node to wrap.
      * @param lookup The lookup to use.
      */
-    public MindMapNode(NodeChildren children, Node node, Lookup lookup) {
+    public MindMapNode(Children children, Node node, Lookup lookup) {
         super(children);
 
         this.node = node;
@@ -70,7 +72,7 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener{
 
         });
 
-        getCookieSet().add(children.getIndex());
+        getCookieSet().add(new IndexImpl());
 
         if(node.getDocument().isModified())
                 getCookieSet().add(lookup.lookup(SaveCookie.class));
@@ -133,7 +135,16 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener{
      * @param evt The event to react on.
      */
     public void propertyChange(PropertyChangeEvent evt) {
+        if(evt.getPropertyName().equals(Node.PROPERTY_CHILDREN)) {
+            if(getChildren() == Children.LEAF) {
+                setChildren(new NodeChildren(node, lookup));
+            }
+            else if(node.getChildren().length == 0) {
+                setChildren(Children.LEAF);
+            }
+        }
         if(evt.getPropertyName().equals(Node.PROPERTY_NAME)) {
+            setName(node.getName());
             setDisplayName(node.getName());
         }
         if(evt.getPropertyName().equals(Document.PROPERTY_MODIFIED)) {
@@ -171,7 +182,13 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener{
 
     @Override
     public void setName(String s) {
+        super.setName(s);
         node.getDocument().createRenameAction(node, s);
+    }
+
+    @Override
+    public String getName() {
+        return node.getName();
     }
 
     @Override
@@ -203,9 +220,21 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener{
     }
 
     @Override
+    public Transferable clipboardCopy() throws IOException {
+        Node nodeCopy = node.copy();
+        Children children;
+        if(node.getChildren().length == 0)
+            children = Children.LEAF;
+        else
+            children = new NodeChildren(nodeCopy, lookup);
+        MindMapNode copyNode = new MindMapNode(children, nodeCopy, lookup);
+        return NodeTransfer.transferable(copyNode, DnDConstants.ACTION_COPY);
+    }
+
+    @Override
     public Transferable clipboardCut() throws IOException {
         destroy();
-        return super.clipboardCut();
+        return clipboardCopy();
     }
 
     @Override
@@ -228,6 +257,28 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener{
         return true;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final MindMapNode other = (MindMapNode) obj;
+        if (this.node != other.node && (this.node == null || !this.node.equals(other.node))) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 53 * hash + (this.node != null ? this.node.hashCode() : 0);
+        return hash;
+    }
+
     /**
      * Support creation of child nodes of the same type.
      */
@@ -243,4 +294,27 @@ class MindMapNode extends AbstractNode implements PropertyChangeListener{
             return "Node";
         }
     }
+
+    /**
+     * An implementation of the index class to support reordering of the
+     * children of a MindMap node.
+     */
+    protected class IndexImpl extends Index.Support {
+
+        @Override
+        public org.openide.nodes.Node[] getNodes() {
+            return getChildren().getNodes();
+        }
+
+        @Override
+        public int getNodesCount() {
+            return getChildren().getNodesCount();
+        }
+
+        @Override
+        public void reorder(int[] perm) {
+            node.getDocument().createReorderAction(node, perm);
+        }
+
+    };
 }

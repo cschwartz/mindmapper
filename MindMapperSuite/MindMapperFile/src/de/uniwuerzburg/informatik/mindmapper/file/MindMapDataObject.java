@@ -135,9 +135,9 @@ public class MindMapDataObject extends MultiDataObject implements DocumentCookie
 
         @Override
         public boolean close() {
+            setModified(false);
             document = null;
             getCookieSet().assign(DocumentCookie.class);
-            setModified(false);
             return true;
         }
 
@@ -205,7 +205,10 @@ public class MindMapDataObject extends MultiDataObject implements DocumentCookie
          * @return The documents UndoRedo.Manager.
          */
         public Manager getUndoRedoManager() {
-            return document.getUndoRedoManager();
+            if(document != null)
+                return document.getUndoRedoManager();
+            else
+                return null;
         }
     }
 }

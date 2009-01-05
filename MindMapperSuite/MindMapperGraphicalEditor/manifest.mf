@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: de.uniwuerzburg.informatik.mindmapper.graphicaleditor
+OpenIDE-Module-Localizing-Bundle: de/uniwuerzburg/informatik/mindmapper/graphicaleditor/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+

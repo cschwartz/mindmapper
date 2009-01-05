@@ -14,6 +14,15 @@ import java.util.NoSuchElementException;
  */
 public class NodeImpl implements Node{
     /**
+     * Next node id
+     */
+    protected static int nextId;
+
+    /**
+     * Node id
+     */
+    protected int id;
+    /**
      * Property change support for all node properties.
      */
     protected PropertyChangeSupport support;
@@ -22,6 +31,28 @@ public class NodeImpl implements Node{
      * The nodes name property.
      */
     protected String name;
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final NodeImpl other = (NodeImpl) obj;
+        if(this.id != other.id) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 29 * hash + id;
+        return hash;
+    }
 
     /**
      * The nodes children.
@@ -40,6 +71,7 @@ public class NodeImpl implements Node{
         support = new PropertyChangeSupport(this);
         children = new LinkedList<Node>();
         name = "New node";
+        id = nextId++;
     }
 
     public String getName() {
@@ -113,6 +145,7 @@ public class NodeImpl implements Node{
     public Node copy() {
         NodeImpl newNode = new NodeImpl();
         newNode.setName(getName());
+        newNode.document = document;
         for(Node child : children) {
             newNode.addChild(child.copy());
         }

@@ -49,15 +49,10 @@ public class NodeChildren extends Children.Keys<Node> implements PropertyChangeL
 
     @Override
     protected org.openide.nodes.Node[] createNodes(Node key) {
-        return new org.openide.nodes.Node[] { new MindMapNode(new NodeChildren(key, lookup), key, lookup)};
-    }
-
-    /**
-     * Provide a Index for reordering.
-     * @return The index used for reordering.
-     */
-    public Index getIndex() {
-        return new IndexImpl();
+        if(key.getChildren().length == 0) {
+            return new org.openide.nodes.Node[] { new MindMapNode(Children.LEAF, key, lookup)};
+        } else
+            return new org.openide.nodes.Node[] { new MindMapNode(new NodeChildren(key, lookup), key, lookup)};
     }
 
     /**
@@ -71,27 +66,4 @@ public class NodeChildren extends Children.Keys<Node> implements PropertyChangeL
         }
         setKeys(keys);
     }
-
-    /**
-     * An implementation of the index class to support reordering of the
-     * children of a MindMap node.
-     */
-    protected class IndexImpl extends Index.Support {
-
-        @Override
-        public org.openide.nodes.Node[] getNodes() {
-            return NodeChildren.this.getNodes();
-        }
-
-        @Override
-        public int getNodesCount() {
-            return NodeChildren.this.getNodesCount();
-        }
-
-        @Override
-        public void reorder(int[] perm) {
-            node.getDocument().createReorderAction(node, perm);
-        }
-
-    };
 }

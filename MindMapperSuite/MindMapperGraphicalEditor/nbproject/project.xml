@@ -3,17 +3,9 @@
     <type>org.netbeans.modules.apisupport.project</type>
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/3">
-            <code-name-base>de.uniwuerzburg.informatik.mindmapper.editor</code-name-base>
+            <code-name-base>de.uniwuerzburg.informatik.mindmapper.graphicaleditor</code-name-base>
             <suite-component/>
             <module-dependencies>
-                <dependency>
-                    <code-name-base>de.uniwuerzburg.informatik.mindmapper.api</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <specification-version>1.0</specification-version>
-                    </run-dependency>
-                </dependency>
                 <dependency>
                     <code-name-base>de.uniwuerzburg.informatik.mindmapper.editorapi</code-name-base>
                     <build-prerequisite/>
@@ -28,7 +20,15 @@
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
-                        <specification-version>1.5</specification-version>
+                        <specification-version>1.6.1</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.api.visual</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>2.17.1</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -36,7 +36,7 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>6.7.0.1</specification-version>
+                        <specification-version>6.8.1.1</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -60,15 +60,7 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>6.13.2.1</specification-version>
-                    </run-dependency>
-                </dependency>
-                <dependency>
-                    <code-name-base>org.openide.filesystems</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <specification-version>7.8</specification-version>
+                        <specification-version>6.16.1</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -76,7 +68,7 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>6.9</specification-version>
+                        <specification-version>7.2.1</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -84,7 +76,7 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>7.3.1.1</specification-version>
+                        <specification-version>7.7.1.1</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -92,7 +84,7 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>7.12.0.1</specification-version>
+                        <specification-version>7.18.1.1</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -100,13 +92,11 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>6.20</specification-version>
+                        <specification-version>6.24.1</specification-version>
                     </run-dependency>
                 </dependency>
             </module-dependencies>
-            <public-packages>
-                <package>de.uniwuerzburg.informatik.mindmapper.editor</package>
-            </public-packages>
+            <public-packages/>
         </data>
     </configuration>
 </project>
